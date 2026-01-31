@@ -134,6 +134,7 @@ class BitWriter:
             self._cur = 0
             self._nbits = 0
 
+    # ok de folosit cand numarul pe care vreau sa-l scriu incape pe 1B
     def write_bits(self, x: int, n: int) -> None: #scrie exact n biti din numarul x in fluxul de iesire, 
                                                     # in ordine MSB-first (de la bitul cel mai semnificativ la cel mai putin semnificativ)
         
