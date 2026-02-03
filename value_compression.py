@@ -52,16 +52,18 @@ class ValueEncoder:
                 meaningful_bits = 64 - self._prev_leading - self._prev_trailing
                 self._writer.write_bits(xor >> self._prev_trailing, meaningful_bits)
             else:
-                # Bit control '1': definim o fereastră nouă
+                # Bit control '1': definim o fereastra noua
                 self._writer.write_bit(1)
-                self._writer.write_bits(leading, 5) 
-                
-                meaningful_bits = 64 - leading - trailing
-                # Lungimea biților semnificativi se scrie pe 6 biți
-                self._writer.write_bits(meaningful_bits, 6) 
-                self._writer.write_bits(xor >> trailing, meaningful_bits) 
+                self._writer.write_bits(leading, 5)
 
-                # Actualizăm parametrii ferestrei pentru următoarea valoare
+                meaningful_bits = 64 - leading - trailing
+                # IMPORTANT: Stocam (meaningful_bits - 1) pe 6 biti
+                # Aceasta permite reprezentarea valorilor 1-64 ca 0-63
+                # (meaningful_bits e minim 1 cand XOR != 0)
+                self._writer.write_bits(meaningful_bits - 1, 6)
+                self._writer.write_bits(xor >> trailing, meaningful_bits)
+
+                # Actualizam parametrii ferestrei pentru urmatoarea valoare
                 self._prev_leading = leading
                 self._prev_trailing = trailing
 
@@ -93,14 +95,15 @@ class ValueDecoder:
             # Bit 0 înseamnă XOR 0 (valoare identică)
             return self._bits_to_float(self._prev_value_bits)
 
-        # Bit 1 înseamnă că avem o diferență XOR
+        # Bit 1 inseamna ca avem o diferenta XOR
         if self._reader.read_bit() == 0:
-            # Refolosim fereastra de biți semnificativi anterioară
+            # Refolosim fereastra de biti semnificativi anterioara
             meaningful_bits = 64 - self._prev_leading - self._prev_trailing
         else:
-            # Citim o fereastră nouă (leading zeros și lungime)
-            self._prev_leading = self._reader.read_bits(5) 
-            meaningful_bits = self._reader.read_bits(6) 
+            # Citim o fereastra noua (leading zeros si lungime)
+            self._prev_leading = self._reader.read_bits(5)
+            # IMPORTANT: Adaugam 1 pentru ca encoder-ul a stocat (meaningful_bits - 1)
+            meaningful_bits = self._reader.read_bits(6) + 1
             self._prev_trailing = 64 - self._prev_leading - meaningful_bits
 
         # Extragem biții semnificativi și reconstruim valoarea prin XOR

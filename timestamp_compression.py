@@ -106,25 +106,28 @@ class TimestampEncoder:
         Args:
             dod: Delta-of-delta (diferenta intre delta-uri consecutive)
         """
-        if dod == 0: #dif intre delta_cur - delta_ant = 0
+        if dod == 0:  # dif intre delta_cur - delta_ant = 0
             # Cazul cel mai frecvent: timestamp perfect periodic
             self._writer.write_bit(0)
 
-        elif -63 <= dod <= 64:
+        elif -64 <= dod <= 63:
             # Deviatie mica: 2 biti control + 7 biti valoare
+            # 7 biti signed: [-64, 63]
             self._writer.write_bit(1)
             self._writer.write_bit(0)
             self._writer.write_signed(dod, 7)
 
-        elif -255 <= dod <= 256:
+        elif -256 <= dod <= 255:
             # Deviatie medie: 3 biti control + 9 biti valoare
+            # 9 biti signed: [-256, 255]
             self._writer.write_bit(1)
             self._writer.write_bit(1)
             self._writer.write_bit(0)
             self._writer.write_signed(dod, 9)
 
-        elif -2047 <= dod <= 2048:
+        elif -2048 <= dod <= 2047:
             # Deviatie mare: 4 biti control + 12 biti valoare
+            # 12 biti signed: [-2048, 2047]
             self._writer.write_bit(1)
             self._writer.write_bit(1)
             self._writer.write_bit(1)
