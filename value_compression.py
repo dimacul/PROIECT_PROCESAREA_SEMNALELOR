@@ -33,7 +33,6 @@ class ValueEncoder:
         else:
             # Există o diferență: scriem bit de control '1'
             self._writer.write_bit(1)
-
             # Calculăm leading și trailing zeros pentru a găsi biții semnificativi
             bin_xor = bin(xor)[2:].zfill(64)
             leading = len(bin_xor) - len(bin_xor.lstrip('0'))

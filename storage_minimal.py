@@ -1,17 +1,13 @@
-import time
 from typing import List, Tuple, Optional
 from BitWriter import BitWriter
 from BitReader import BitReader
 from timestamp_compression import TimestampEncoder, TimestampDecoder
 from value_compression import ValueEncoder, ValueDecoder
-# Presupunem că ai clasele de la Ziua 2 și 3 în fișiere separate
-# from Timestamps import TimestampEncoder, TimestampDecoder
-# from Values import ValueEncoder, ValueDecoder
+
+
 
 class SeriesBlock:
-    """
-    Reprezintă un bloc de date comprimat (de obicei pentru o fereastră de 2 ore)[cite: 8, 9, 13].
-    """
+
     def __init__(self, start_timestamp: int):
         self.start_timestamp = start_timestamp # 
         self.writer = BitWriter()
@@ -22,13 +18,11 @@ class SeriesBlock:
         self.compressed_data: Optional[bytes] = None
 
     def add(self, ts: int, val: float):
-        """Adaugă un punct în bloc[cite: 11]."""
         self.ts_encoder.add_timestamp(ts)
         self.val_encoder.add_value(val)
         self.count += 1
 
     def seal(self):
-        """Închide blocul și eliberează memoria writer-ului."""
         self.compressed_data = self.writer.to_bytes()
         self.closed = True
         # Eliberăm obiectele de encoding pentru a economisi memorie
@@ -37,9 +31,7 @@ class SeriesBlock:
         self.writer = None
 
 class TimeSeries:
-    """
-    Gestionează blocurile unei singure serii (ex: 'temperatura_camera_1')[cite: 10].
-    """
+
     def __init__(self, block_duration_sec: int = 7200): # 7200s = 2h 
         self.block_duration = block_duration_sec
         self.open_block: Optional[SeriesBlock] = None
@@ -59,7 +51,6 @@ class TimeSeries:
         self.open_block.add(ts, val)
 
     def query(self, t_start: int, t_end: int) -> List[Tuple[int, float]]:
-        """Identifică blocurile relevante și decodează doar acele intervale."""
         results = []
         
         # Verificăm blocurile închise 
@@ -110,60 +101,3 @@ class GorillaStore:
             return []
         return self.series_map[series_key].query(t_start, t_end)
     
-if __name__ == "__main__":
-    # 1. Inițializăm stocarea Gorilla
-    store = GorillaStore()
-    nume_senzor = "senzor_temperatura_01"
-    
-    # Alegem un timestamp de start (ora 10:00:00)
-    start_time = 1700000000 
-    
-    print(f"--- Incepere Test Gorilla Store pentru {nume_senzor} ---")
-
-    # 2. Inserăm date pentru 5 ore (pentru a genera cel puțin 3 blocuri de câte 2h)
-    # Introducem un punct la fiecare 1 minut (60 secunde)
-    # 5 ore * 60 minute = 300 de puncte
-    print("Se insereaza date pentru 5 ore (300 puncte)...")
-    for i in range(300):
-        current_ts = start_time + (i * 60)
-        # Generăm o valoare care variază ușor
-        current_val = 22.0 + (i % 10) * 0.1 
-        store.insert(nume_senzor, current_ts, current_val)
-
-    # 3. Test Query: Cerem datele dintr-un interval specific (ex: o fereastră de 15 min)
-    # Alegem un interval care se află la mijlocul datelor inserate
-    t_query_start = start_time + 7200 + 600  # Ora 12:10 (după 2 ore și 10 min)
-    t_query_end = t_query_start + 900        # Până la 12:25 (15 minute mai târziu)
-
-    print(f"\nExecutie Query intre timestamps: {t_query_start} si {t_query_end}")
-    
-    t0 = time.time()
-    rezultate = store.query(nume_senzor, t_query_start, t_query_end)
-    t1 = time.time()
-
-    # 4. Verificarea rezultatelor (Cerința 51, 53)
-    print(f"Query finalizat in {(t1-t0)*1000:.2f} ms.")
-    print(f"Puncte gasite: {len(rezultate)}")
-    
-    if rezultate:
-        print("\nPrimele 5 puncte returnate:")
-        for ts, val in rezultate[:5]:
-            print(f"  TS: {ts} | Valoare: {val:.2f}")
-
-    # 5. Analiza stocării (Cerința 12, 13)
-    # Accesăm direct structura internă pentru a vedea câte blocuri s-au creat
-    serie = store.series_map[nume_senzor]
-    print(f"\n--- Statisici Stocare ---")
-    print(f"Blocuri inchise (imutabile): {len(serie.closed_blocks)}")
-    print(f"Blocuri deschise (active): {1 if serie.open_block else 0}")
-    
-    # Calculăm dimensiunea totală a biților comprimați
-    total_bytes = sum(len(b.compressed_data) for b in serie.closed_blocks)
-    if serie.open_block:
-        total_bytes += len(serie.open_block.writer.to_bytes())
-        
-    print(f"Dimensiune totala comprimata: {total_bytes} bytes")
-    print(f"Dimensiune originala estimata (16 bytes/punct): {300 * 16} bytes")
-    print(f"Rata de compresie: {(300 * 16) / total_bytes:.2f}x")
-
-    print("\n--- Test Finalizat cu Succes ---")
