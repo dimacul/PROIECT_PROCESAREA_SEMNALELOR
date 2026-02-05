@@ -1,0 +1,137 @@
+\chapter{State-of-the-Art}
+
+Înainte de a prezenta algoritmul Gorilla, vom trece în revistă provocările cărora bazele de date cu serii de timp încearcă să le facă față și compromisurile pe care le fac.
+
+\section{Baze de date pentru serii de timp (TSDB)}
+
+O \textbf{bază de date pentru serii temporale} (Time Series Database --- TSDB) este un sistem software optimizat pentru stocarea și interogarea datelor indexate după timp. Spre deosebire de bazele de date relaționale tradiționale, TSDB-urile sunt proiectate pentru:
+
+\begin{itemize}
+    \item Rate foarte mari de scriere (milioane de puncte pe secundă);
+    \item Interogări pe intervale de timp (,,dă-mi toate valorile între ora 10:00 și 11:00'');
+    \item Agregări temporale (medii, sume, percentile pe ferestre de timp);
+    \item Retenție automată a datelor (ștergerea datelor mai vechi de X zile).
+\end{itemize}
+
+\section{OpenTSDB}
+
+\textbf{OpenTSDB} (Open Time Series Database) este o bază de date distribuită pentru serii temporale, construită peste Apache HBase \cite{opentsdb}. HBase, la rândul său, este un sistem de stocare distribuit bazat pe modelul BigTable al Google.
+
+\subsection{Arhitectură}
+
+OpenTSDB utilizează un model de date în care fiecare serie temporală este identificată printr-un set de perechi cheie-valoare numite \textit{tag-uri}:
+
+\begin{verbatim}
+    metric: sys.cpu.user
+    tags: {host=webserver01, cpu=0}
+    timestamp: 1458034800
+    value: 42.5
+\end{verbatim}
+
+Datele sunt stocate în HBase într-o structură de tabel optimizată pentru scanări secvențiale pe intervale de timp.
+
+\subsection{Avantaje și limitări}
+
+\textbf{Avantaje:}
+\begin{itemize}
+    \item Scalabilitate orizontală prin adăugarea de noduri HBase;
+    \item Persistență durabilă pe disc cu replicare;
+    \item Model de date flexibil cu tag-uri arbitrare.
+\end{itemize}
+
+\textbf{Limitări:}
+\begin{itemize}
+    \item \textbf{Latență ridicată}: Fiind bazat pe disc, interogările pot dura secunde sau chiar minute pentru volume mari de date;
+    \item \textbf{Complexitate operațională}: Necesită administrarea unui cluster HBase și Hadoop;
+    \item \textbf{Nu este optimizat pentru date recente}: Toate datele sunt tratate egal, fără prioritizare a celor recente.
+\end{itemize}
+
+În contextul Facebook, OpenTSDB (prin HBase) nu putea scala pentru cerințele de latență necesare. Percentila 90 a timpului de interogare creștea de la câteva secunde la minute pe măsură ce volumul de date creștea.
+
+\section{Graphite și Whisper}
+
+\textbf{Graphite} este o suită de monitorizare compusă din trei componente: Carbon (serviciul de ingestie), Whisper (formatul de stocare) și Graphite Web (interfața de interogare) \cite{graphite}.
+
+\subsection{Formatul Whisper}
+
+Whisper utilizează un format de stocare \textit{Round-Robin Database} (RRD). Caracteristicile principale:
+
+\begin{itemize}
+    \item \textbf{Dimensiune fixă}: Fiecare serie temporală ocupă un spațiu fix pe disc, determinat la creare;
+    \item \textbf{Intervale fixe}: Timestamp-urile sunt presupuse să vină la intervale exacte;
+    \item \textbf{Suprascrierea datelor vechi}: Când spațiul se umple, datele noi le suprascriu pe cele mai vechi.
+\end{itemize}
+
+\subsection{Limitări}
+
+\begin{itemize}
+    \item \textbf{Nu suportă jitter}: Dacă un punct de date vine la secunda 61 în loc de 60, trebuie fie ignorat, fie interpolat;
+    \item \textbf{Stocare pe disc}: Similar cu OpenTSDB, latența este limitată de I/O-ul discului;
+    \item \textbf{Fiecare serie într-un fișier separat}: La miliarde de serii, managementul fișierelor devine problematic.
+\end{itemize}
+
+\section{Tehnici de compresie pentru serii de timp}
+
+Există multe abordări pentru compresia seriilor de timp, fiecare cu propriile dezavantaje:
+
+\subsection{Compresie cu pierderi (Lossy)}
+
+Tehnicile cu pierderi reduc volumul de date prin aproximare:
+
+\begin{itemize}
+    \item \textbf{Downsampling}: Păstrarea doar a unui punct din N (de exemplu, un punct pe minut în loc de unul pe secundă);
+    \item \textbf{Agregare}: Înlocuirea mai multor puncte cu media, suma sau alte statistici;
+    \item \textbf{Piecewise Linear Approximation}: Aproximarea seriei cu segmente de dreaptă.
+\end{itemize}
+
+Aceste tehnici sunt utile pentru date istorice, dar inacceptabile pentru monitorizare în timp real, unde fiecare punct poate indica o problemă critică.
+
+\subsection{Compresie fără pierderi (Lossless)}
+
+Tehnicile fără pierderi păstrează exact datele originale:
+
+\begin{itemize}
+    \item \textbf{Delta encoding}: Stocarea diferențelor între valori consecutive în loc de valorile absolute;
+    \item \textbf{Run-length encoding (RLE)}: Compresia secvențelor de valori identice;
+\end{itemize}
+
+\subsection{Compresie pentru numere în virgulă mobilă}
+
+Compresia valorilor \textit{floating-point} prezintă următoarele provocări:
+
+\begin{itemize}
+    \item Reprezentarea IEEE 754 distribuie informația pe 64 de biți (semn, exponent, mantisă);
+    \item Diferențele mici între valori pot produce reprezentări binare foarte diferite;
+\end{itemize}
+
+Lindstrom și Isenburg \cite{lindstrom2006} au propus o tehnică bazată pe predicție și codare XOR pentru compresia datelor științifice în virgulă mobilă. Gorilla adaptează această tehnică pentru streaming în timp real.
+
+\section{Poziționarea algoritmului Gorilla}
+
+Gorilla ocupă o nișă distinctă în peisajul TSDB-urilor:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Caracteristică} & \textbf{OpenTSDB} & \textbf{Graphite} & \textbf{Gorilla} \\
+\midrule
+Stocare & Disc (HBase) & Disc (Whisper) & Memorie \\
+Latență citire & Secunde & Secunde & Milisecunde \\
+Compresie & Minimă & Fără & Delta-of-delta + XOR \\
+Jitter timestamp & Da & Nu & Da \\
+Prioritizare date recente & Nu & Nu & Da \\
+Persistență & Da & Da & Opțional (cache) \\
+\bottomrule
+\end{tabular}
+\caption{Comparație între sisteme TSDB}
+\label{tab:tsdb-comparison}
+\end{table}
+
+Gorilla este gândit ca un \textbf{cache write-through} în fața unui TSDB persistent precum HBase. 
+
+Un write-through cache este un mecanism unde datele sunt scrise simultan în cache și în mediul de stocare permanent (back-end storage).
+Când o aplicație trimite un punct de date (un datapoint), acesta este stocat imediat în memoria RAM a lui Gorilla pentru interogări ultra-rapide și, în paralel, este trimis către un sistem persistent (precum HBase) pentru arhivare pe termen lung.
+Cache-ul este mereu „la zi” cu baza de date. Dacă interogarea caută date recente, Gorilla le oferă instantaneu fără a mai accesa discul.
+
+Aceste caracteristici au făcut din Gorilla sistemul preferat pentru monitorizare în timp real la Facebook, servind peste 85\% din interogările către datele din ultimele 26 de ore.

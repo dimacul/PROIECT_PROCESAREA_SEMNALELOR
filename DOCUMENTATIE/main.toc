@@ -1,0 +1,118 @@
+\xpg@aux {}{romanian}
+\xpg@aux {}{romanian}
+\xpg@aux {}{romanian}
+\contentsline {chapter}{\numberline {1}Introducere}{6}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Contextul problemei}{6}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Motivația proiectului}{6}{section.1.2}%
+\contentsline {subsection}{\numberline {1.2.1}Cerințe de performanță}{7}{subsection.1.2.1}%
+\contentsline {subsection}{\numberline {1.2.2}Particularități ale datelor}{7}{subsection.1.2.2}%
+\contentsline {section}{\numberline {1.3}Obiectivele proiectului}{7}{section.1.3}%
+\contentsline {chapter}{\numberline {2}State-of-the-Art}{8}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Baze de date pentru serii de timp (TSDB)}{8}{section.2.1}%
+\contentsline {section}{\numberline {2.2}OpenTSDB}{8}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Arhitectură}{8}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Avantaje și limitări}{9}{subsection.2.2.2}%
+\contentsline {section}{\numberline {2.3}Graphite și Whisper}{9}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Formatul Whisper}{9}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Limitări}{9}{subsection.2.3.2}%
+\contentsline {section}{\numberline {2.4}Tehnici de compresie pentru serii de timp}{10}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}Compresie cu pierderi (Lossy)}{10}{subsection.2.4.1}%
+\contentsline {subsection}{\numberline {2.4.2}Compresie fără pierderi (Lossless)}{10}{subsection.2.4.2}%
+\contentsline {subsection}{\numberline {2.4.3}Compresie pentru numere în virgulă mobilă}{10}{subsection.2.4.3}%
+\contentsline {section}{\numberline {2.5}Poziționarea algoritmului Gorilla}{10}{section.2.5}%
+\contentsline {chapter}{\numberline {3}Algoritmul Gorilla}{12}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Arhitectura generală}{12}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}Structura datelor}{12}{subsection.3.1.1}%
+\contentsline {subsection}{\numberline {3.1.2}Fluxul de compresie}{12}{subsection.3.1.2}%
+\contentsline {section}{\numberline {3.2}Compresia Timestamp-urilor: Delta-of-Delta}{13}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Observația cheie}{13}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Delta encoding simplu}{13}{subsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.2.3}Delta-of-delta encoding}{13}{subsection.3.2.3}%
+\contentsline {subsection}{\numberline {3.2.4}Schema de codare variabilă}{14}{subsection.3.2.4}%
+\contentsline {subsection}{\numberline {3.2.5}Reprezentarea în complement față de 2}{14}{subsection.3.2.5}%
+\contentsline {subsection}{\numberline {3.2.6}Algoritmul de codare}{14}{subsection.3.2.6}%
+\contentsline {subsection}{\numberline {3.2.7}Algoritmul de decodare}{14}{subsection.3.2.7}%
+\contentsline {subsection}{\numberline {3.2.8}Eficiența compresiei timestamp-urilor}{14}{subsection.3.2.8}%
+\contentsline {section}{\numberline {3.3}Compresia Valorilor: XOR Encoding}{15}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Provocarea compresiei floating-point}{15}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Observația cheie: XOR pentru valori similare}{16}{subsection.3.3.2}%
+\contentsline {subsection}{\numberline {3.3.3}Schema de codare XOR}{17}{subsection.3.3.3}%
+\contentsline {subsubsection}{Prima valoare}{17}{section*.7}%
+\contentsline {subsubsection}{Valori ulterioare}{17}{section*.8}%
+\contentsline {subsection}{\numberline {3.3.4}Calculul leading și trailing zeros}{18}{subsection.3.3.4}%
+\contentsline {subsection}{\numberline {3.3.5}Algoritmul de codare pentru valori}{18}{subsection.3.3.5}%
+\contentsline {subsection}{\numberline {3.3.6}Eficiența compresiei valorilor}{19}{subsection.3.3.6}%
+\contentsline {section}{\numberline {3.4}Compresia combinată}{19}{section.3.4}%
+\contentsline {section}{\numberline {3.5}Analiza complexității}{19}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Complexitate temporală}{19}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}Complexitate spațială}{19}{subsection.3.5.2}%
+\contentsline {section}{\numberline {3.6}Extindere pentru serii multivariate}{20}{section.3.6}%
+\contentsline {subsection}{\numberline {3.6.1}Strategia de compresie}{20}{subsection.3.6.1}%
+\contentsline {chapter}{\numberline {4}Implementare}{21}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Structura proiectului}{21}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Operații pe biți: BitWriter și BitReader}{22}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Provocarea}{22}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Clasa BitWriter}{22}{subsection.4.2.2}%
+\contentsline {subsubsection}{Metoda write\_bit}{22}{section*.11}%
+\contentsline {subsubsection}{Metoda write\_bits}{23}{section*.12}%
+\contentsline {subsubsection}{Reprezentarea în complement față de 2}{23}{section*.13}%
+\contentsline {subsection}{\numberline {4.2.3}Clasa BitReader}{23}{subsection.4.2.3}%
+\contentsline {subsubsection}{Metoda read\_bit}{24}{section*.14}%
+\contentsline {section}{\numberline {4.3}Compresia timestamp-urilor}{24}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Clasa TimestampEncoder}{24}{subsection.4.3.1}%
+\contentsline {subsubsection}{Metoda add\_timestamp}{25}{section*.15}%
+\contentsline {subsubsection}{Codarea delta-of-delta}{25}{section*.16}%
+\contentsline {section}{\numberline {4.4}Compresia valorilor}{26}{section.4.4}%
+\contentsline {subsection}{\numberline {4.4.1}Conversia float $\leftrightarrow $ biți}{26}{subsection.4.4.1}%
+\contentsline {subsection}{\numberline {4.4.2}Clasa ValueEncoder}{26}{subsection.4.4.2}%
+\contentsline {subsubsection}{Metoda add\_value}{27}{section*.17}%
+\contentsline {subsubsection}{Calculul leading/trailing zeros}{27}{section*.18}%
+\contentsline {subsubsection}{Decizia de refolosire a ferestrei}{28}{section*.19}%
+\contentsline {section}{\numberline {4.5}Stocare pentru serii multivariate}{28}{section.4.5}%
+\contentsline {subsection}{\numberline {4.5.1}Clasa MultiVariateBlock}{28}{subsection.4.5.1}%
+\contentsline {subsection}{\numberline {4.5.2}Adăugarea unui punct multivariat}{29}{subsection.4.5.2}%
+\contentsline {section}{\numberline {4.6}Organizarea în blocuri}{29}{section.4.6}%
+\contentsline {section}{\numberline {4.7}Considerații de performanță}{30}{section.4.7}%
+\contentsline {subsection}{\numberline {4.7.1}Utilizarea \_\_slots\_\_}{30}{subsection.4.7.1}%
+\contentsline {subsection}{\numberline {4.7.2}Evitarea alocărilor în bucla principală}{30}{subsection.4.7.2}%
+\contentsline {subsection}{\numberline {4.7.3}Buffer pre-alocat}{30}{subsection.4.7.3}%
+\contentsline {chapter}{\numberline {5}Experimente și Rezultate}{31}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Seturi de date}{31}{section.5.1}%
+\contentsline {subsection}{\numberline {5.1.1}CPU Load Average (serie univariată)}{31}{subsection.5.1.1}%
+\contentsline {subsection}{\numberline {5.1.2}Room Climate Dataset (serie multivariată)}{31}{subsection.5.1.2}%
+\contentsline {section}{\numberline {5.2}Metodologia experimentală}{32}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Metrici de evaluare}{32}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Configurația blocurilor}{32}{subsection.5.2.2}%
+\contentsline {subsection}{\numberline {5.2.3}Validare round-trip}{33}{subsection.5.2.3}%
+\contentsline {section}{\numberline {5.3}Rezultate: Serie univariată (CPU Load)}{33}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}Statistici de compresie}{33}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}Analiza rezultatelor}{33}{subsection.5.3.2}%
+\contentsline {section}{\numberline {5.4}Rezultate: Serie multivariată (Room Climate)}{33}{section.5.4}%
+\contentsline {subsection}{\numberline {5.4.1}Statistici de compresie}{33}{subsection.5.4.1}%
+\contentsline {subsection}{\numberline {5.4.2}Analiza pe variabile}{33}{subsection.5.4.2}%
+\contentsline {subsection}{\numberline {5.4.3}Comparație cu stocarea separată}{34}{subsection.5.4.3}%
+\contentsline {section}{\numberline {5.5}Distribuția biților}{34}{section.5.5}%
+\contentsline {subsection}{\numberline {5.5.1}Timestamp-uri}{34}{subsection.5.5.1}%
+\contentsline {subsection}{\numberline {5.5.2}Valori}{34}{subsection.5.5.2}%
+\contentsline {section}{\numberline {5.6}Efectul dimensiunii blocului}{35}{section.5.6}%
+\contentsline {section}{\numberline {5.7}Validarea corectitudinii}{35}{section.5.7}%
+\contentsline {section}{\numberline {5.8}Comparație cu articolul original}{36}{section.5.8}%
+\contentsline {chapter}{\numberline {6}Concluzii}{37}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Sinteza contribuțiilor}{37}{section.6.1}%
+\contentsline {subsection}{\numberline {6.1.1}Implementare completă în Python}{37}{subsection.6.1.1}%
+\contentsline {subsection}{\numberline {6.1.2}Documentare teoretică}{37}{subsection.6.1.2}%
+\contentsline {subsection}{\numberline {6.1.3}Validare experimentală}{37}{subsection.6.1.3}%
+\contentsline {section}{\numberline {6.2}Concluzii tehnice}{38}{section.6.2}%
+\contentsline {subsection}{\numberline {6.2.1}Eficiența delta-of-delta}{38}{subsection.6.2.1}%
+\contentsline {subsection}{\numberline {6.2.2}Eficiența XOR encoding}{38}{subsection.6.2.2}%
+\contentsline {subsection}{\numberline {6.2.3}Avantajul stocării multivariate}{38}{subsection.6.2.3}%
+\contentsline {section}{\numberline {6.3}Limitări identificate}{38}{section.6.3}%
+\contentsline {subsection}{\numberline {6.3.1}Date cu variabilitate mare}{38}{subsection.6.3.1}%
+\contentsline {subsection}{\numberline {6.3.2}Overhead pentru serii scurte}{38}{subsection.6.3.2}%
+\contentsline {subsection}{\numberline {6.3.3}Decodare secvențială}{39}{subsection.6.3.3}%
+\contentsline {subsection}{\numberline {6.3.4}Implementare interpretată}{39}{subsection.6.3.4}%
+\contentsline {section}{\numberline {6.4}Direcții de dezvoltare ulterioară}{39}{section.6.4}%
+\contentsline {subsection}{\numberline {6.4.1}Optimizări de performanță}{39}{subsection.6.4.1}%
+\contentsline {subsection}{\numberline {6.4.2}Funcționalități adiționale}{39}{subsection.6.4.2}%
+\contentsline {subsection}{\numberline {6.4.3}Integrare}{39}{subsection.6.4.3}%
+\contentsline {section}{\numberline {6.5}Concluzii finale}{39}{section.6.5}%

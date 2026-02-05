@@ -1,0 +1,23 @@
+\begin{abstractpage}
+
+\begin{abstract}{romanian}
+Sistemele moderne de monitorizare generează volume imense de date sub formă de serii de timp --- secvențe ordonate 
+de perechi \textit{(timestamp, value)} care înregistrează evoluția în timp a diferitelor metrici. Stocarea eficientă 
+a acestor date reprezintă o provocare semnificativă, deoarece abordarea naivă necesită 16 bytes pentru fiecare datapoint 
+(8 bytes pentru timestamp și 8 pentru valoarea în format IEEE 754 double).
+
+În acest proiect analizăm și implementăm algoritmul de compresie \textbf{Gorilla}, dezvoltat de Facebook pentru baza lor de date de serii de timp in-memory. 
+Soluția propusă combină două tehnici complementare: \textit{delta-of-delta encoding} pentru comprimarea timestamp-urilor 
+și \textit{XOR encoding} pentru comprimarea valorilor în virgulă mobilă. 
+Ambele tehnici exploatează proprietățile specifice ale seriilor temporale --- periodicitatea timestamp-urilor și 
+corelația temporală a valorilor --- pentru a obține rate de compresie semnificative.
+
+Implementarea realizată de noi în Python demonstrează eficiența algoritmului pe două seturi de date: metrici de utilizare CPU (serie univariată) și 
+date climatice dintr-un mediu interior (serie multivariată cu 8 variabile). 
+Rezultatele experimentale arată rate de compresie de aproximativ 2--4x, reducând consumul de memorie de la 16 bytes la aproximativ 4--8 bytes per datapoint, 
+în funcție de caracteristicile datelor.
+\end{abstract}
+
+
+
+\end{abstractpage}

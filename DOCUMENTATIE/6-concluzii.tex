@@ -1,0 +1,125 @@
+\chapter{Concluzii}
+
+\section{Sinteza contribuțiilor}
+
+Prezentul proiect a implementat și analizat algoritmul de compresie Gorilla pentru serii temporale. Principalele contribuții sunt:
+
+\subsection{Implementare completă în Python}
+
+A fost realizată o implementare funcțională a algoritmului Gorilla, incluzând:
+\begin{itemize}
+    \item Module pentru operații la nivel de bit (\texttt{BitWriter}, \texttt{BitReader});
+    \item Compresie delta-of-delta pentru timestamp-uri;
+    \item Compresie XOR pentru valori în virgulă mobilă;
+    \item Suport pentru serii univariate și multivariate;
+    \item Organizare în blocuri de durată configurabilă.
+\end{itemize}
+
+\subsection{Documentare teoretică}
+
+Au fost prezentate în detaliu:
+\begin{itemize}
+    \item Fundamentele matematice ale reprezentării în complement față de 2;
+    \item Schema de codare variabilă pentru delta-of-delta;
+    \item Mecanismul XOR și optimizarea prin refolosirea ferestrei de biți;
+    \item Analiza complexității algoritmilor.
+\end{itemize}
+
+\subsection{Validare experimentală}
+
+Implementarea a fost testată pe două seturi de date reale:
+\begin{itemize}
+    \item Serie univariată (CPU Load): rată de compresie 2.25x;
+    \item Serie multivariată (Room Climate, 8 variabile): rată de compresie 4.13x.
+\end{itemize}
+
+Toate testele au validat corectitudinea round-trip a compresiei (lossless).
+
+\section{Concluzii tehnice}
+
+Pe baza experimentelor realizate, putem formula următoarele concluzii:
+
+\subsection{Eficiența delta-of-delta}
+
+Compresia timestamp-urilor este extrem de eficientă pentru date cu intervale regulate:
+\begin{itemize}
+    \item Aproximativ 85\% dintre timestamp-uri sunt comprimate la 1 singur bit;
+    \item Media este de 2--3 biți per timestamp, față de 64 biți necomprimat;
+    \item Eficiența scade semnificativ pentru date cu jitter mare sau intervale aleatorii.
+\end{itemize}
+
+\subsection{Eficiența XOR encoding}
+
+Compresia valorilor depinde de caracteristicile datelor:
+\begin{itemize}
+    \item Valori constante sau aproape constante se comprimă foarte bine (1 bit);
+    \item Valori cu variație lentă beneficiază de refolosirea ferestrei;
+    \item Valori aleatorii sau cu salturi mari necesită ferestre noi (13+ biți overhead).
+\end{itemize}
+
+\subsection{Avantajul stocării multivariate}
+
+Pentru serii cu multiple variabile per timestamp, abordarea cu un singur stream de timestamp-uri este semnificativ mai eficientă:
+\begin{itemize}
+    \item Evită duplicarea timestamp-urilor ($k-1$ copii eliminate);
+    \item Fiecare variabilă menține context XOR propriu;
+    \item Economia este proporțională cu numărul de variabile.
+\end{itemize}
+
+\section{Limitări identificate}
+
+\subsection{Date cu variabilitate mare}
+
+Algoritmul nu este optim pentru:
+\begin{itemize}
+    \item Timestamp-uri aleatorii sau foarte neregulate;
+    \item Valori care variază drastic între măsurători consecutive;
+    \item Date criptate sau comprimate anterior (aspect aleatoriu).
+\end{itemize}
+
+\subsection{Overhead pentru serii scurte}
+
+Pentru serii cu foarte puține puncte ($<$100), overhead-ul primelor valori (stocate integral) domină, reducând eficiența compresiei.
+
+\subsection{Decodare secvențială}
+
+Decomprimarea necesită parcurgerea secvențială de la începutul blocului. Nu există acces aleatoriu (random access) la un punct specific fără a decoda toate punctele anterioare din bloc.
+
+\subsection{Implementare interpretată}
+
+Fiind scrisă în Python (limbaj interpretat), implementarea are performanță inferioară unei implementări native în C/C++ sau Rust. Pentru aplicații de producție cu rate mari de ingestie, ar fi necesară o implementare compilată.
+
+\section{Direcții de dezvoltare ulterioară}
+
+\subsection{Optimizări de performanță}
+
+\begin{itemize}
+    \item \textbf{Implementare în C/Rust}: Port-area la un limbaj compilat pentru performanță de producție;
+    \item \textbf{Utilizarea SIMD}: Operațiile pe biți pot beneficia de instrucțiuni vectoriale;
+    \item \textbf{Paralelizare}: Blocurile independente pot fi comprimate/decomprimate în paralel.
+\end{itemize}
+
+\subsection{Funcționalități adiționale}
+
+\begin{itemize}
+    \item \textbf{Partial decode}: Decodare doar a unui interval din bloc, fără a parcurge tot;
+    \item \textbf{Indexare}: Structuri de indexare pentru acces rapid la anumite timestamp-uri;
+    \item \textbf{Streaming API}: Interfață pentru procesare în flux (streaming) a datelor;
+    \item \textbf{Suport pentru missing values}: Gestionarea explicită a punctelor lipsă.
+\end{itemize}
+
+\subsection{Integrare}
+
+\begin{itemize}
+    \item \textbf{Format de fișier persistent}: Definirea unui format binar pentru stocare pe disc;
+    \item \textbf{Integrare cu baze de date}: Plugin-uri pentru PostgreSQL, ClickHouse etc.;
+    \item \textbf{API REST}: Serviciu HTTP pentru ingestie și interogare.
+\end{itemize}
+
+\section{Concluzii finale}
+
+Algoritmul Gorilla reprezintă o soluție elegantă și eficientă pentru compresia seriilor temporale. Prin exploatarea inteligentă a proprietăților specifice ale acestui tip de date --- periodicitatea timestamp-urilor și corelația temporală a valorilor --- obține rate de compresie semnificative (2--12x în funcție de date) menținând caracterul lossless.
+
+Implementarea realizată în cadrul acestui proiect demonstrează fezabilitatea aplicării algoritmului pe date reale și oferă o bază pentru dezvoltări ulterioare. Deși Python nu este limbajul optim pentru performanță maximă, claritatea codului și ușurința testării au facilitat înțelegerea profundă a algoritmului.
+
+Compresia seriilor temporale rămâne un domeniu activ de cercetare, cu aplicații în creștere odată cu proliferarea IoT și a sistemelor de monitorizare distribuite. Gorilla, alături de tehnici mai noi precum Gorilla v2 și variantele sale, continuă să fie relevant pentru sistemele care necesită stocare eficientă în memorie cu acces rapid la date recente.

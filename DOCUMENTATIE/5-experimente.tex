@@ -1,0 +1,310 @@
+\chapter{Experimente și Rezultate}
+
+Acest capitol prezintă evaluarea experimentală a implementării algoritmului Gorilla. Sunt descrise seturile de date utilizate, metodologia de testare și rezultatele obținute.
+
+\section{Seturi de date}
+
+Pentru validarea implementării au fost utilizate două seturi de date cu caracteristici diferite:
+
+\subsection{CPU Load Average (serie univariată)}
+
+Primul set de date conține metrici de încărcare CPU colectate de pe un sistem Linux.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Caracteristică} & \textbf{Valoare} \\
+\midrule
+Număr de puncte & 480 \\
+Perioadă de colectare & $\sim$16 ore \\
+Interval mediu & $\sim$120 secunde \\
+Tip date & Univariat (load average) \\
+Interval valori & 0.57 -- 2.55 \\
+\bottomrule
+\end{tabular}
+\caption{Caracteristicile setului de date CPU Load}
+\label{tab:cpu-dataset}
+\end{table}
+
+\textbf{Load average} reprezintă numărul mediu de procese în coadă de execuție pe o fereastră de timp. Valorile variază ușor în timp, cu schimbări graduale caracteristice sarcinilor tipice de server.
+
+\subsection{Room Climate Dataset (serie multivariată)}
+
+Al doilea set de date provine din Room Climate Dataset, o colecție de măsurători de la senzori de mediu interior \cite{roomclimate}.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Caracteristică} & \textbf{Valoare} \\
+\midrule
+Număr de puncte & 68,229 \\
+Perioadă de colectare & $\sim$22 zile \\
+Interval mediu & $\sim$28 secunde \\
+Număr variabile & 8 \\
+Node ID filtrat & NID = 1 \\
+\bottomrule
+\end{tabular}
+\caption{Caracteristicile setului de date Room Climate}
+\label{tab:room-dataset}
+\end{table}
+
+Cele 8 variabile măsurate sunt:
+
+\begin{enumerate}
+    \item \textbf{Temperatură} (°C): 17--26°C
+    \item \textbf{Umiditate relativă} (\%): 25--60\%
+    \item \textbf{Lumină 1} (lux): senzor principal de lumină
+    \item \textbf{Lumină 2} (lux): senzor secundar
+    \item \textbf{Ocupare}: indicator binar (0/1)
+    \item \textbf{Activitate}: nivel de mișcare detectată
+    \item \textbf{Ușă}: stare ușă (deschis/închis)
+    \item \textbf{Fereastră}: stare fereastră (deschis/închis)
+\end{enumerate}
+
+\section{Metodologia experimentală}
+
+\subsection{Metrici de evaluare}
+
+Au fost calculate următoarele metrici:
+
+\begin{enumerate}
+    \item \textbf{Dimensiune originală}: $n \times (8 + 8k)$ bytes, unde $n$ este numărul de puncte și $k$ numărul de variabile (1 pentru univariat).
+
+    \item \textbf{Dimensiune comprimată}: numărul de bytes după compresie.
+
+    \item \textbf{Rata de compresie}:
+    \begin{equation}
+        R = \frac{\text{Dimensiune originală}}{\text{Dimensiune comprimată}}
+    \end{equation}
+
+    \item \textbf{Bytes per punct}:
+    \begin{equation}
+        B = \frac{\text{Dimensiune comprimată}}{n}
+    \end{equation}
+
+    \item \textbf{Economie procentuală}:
+    \begin{equation}
+        E = \left(1 - \frac{1}{R}\right) \times 100\%
+    \end{equation}
+\end{enumerate}
+
+\subsection{Configurația blocurilor}
+
+Testele au fost realizate cu blocuri de 2 ore (7.200.000 ms), conform configurației standard Gorilla.
+
+\subsection{Validare round-trip}
+
+Pentru a verifica corectitudinea implementării, fiecare test include o validare \textit{round-trip}: datele sunt comprimate, apoi decomprimate, iar valorile rezultate sunt comparate bit-cu-bit cu originalele.
+
+\section{Rezultate: Serie univariată (CPU Load)}
+
+\subsection{Statistici de compresie}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}lr@{}}
+\toprule
+\textbf{Metrică} & \textbf{Valoare} \\
+\midrule
+Puncte totale & 480 \\
+Blocuri (2 ore) & 5 \\
+Dimensiune originală & 7,680 bytes \\
+Dimensiune comprimată & 3,412 bytes \\
+Rata de compresie & 2.25x \\
+Bytes per punct & 7.11 \\
+Economie & 55.6\% \\
+\bottomrule
+\end{tabular}
+\caption{Rezultate compresie pentru CPU Load}
+\label{tab:cpu-results}
+\end{table}
+
+\subsection{Analiza rezultatelor}
+
+Rata de compresie de 2.25x este mai modestă decât cea raportată în articolul Gorilla ($\sim$12x) din următoarele motive:
+
+\begin{enumerate}
+    \item \textbf{Interval neregulat}: Timestamp-urile din acest set nu sunt perfect periodice (interval mediu de $\sim$120s cu variații), ceea ce reduce eficiența delta-of-delta.
+
+    \item \textbf{Valori variabile}: Load average variază frecvent, ceea ce produce mai multe XOR-uri non-zero.
+
+    \item \textbf{Set de date mic}: Cu doar 480 de puncte, overhead-ul primelor valori (scrise integral) are impact proporțional mai mare.
+\end{enumerate}
+
+\section{Rezultate: Serie multivariată (Room Climate)}
+
+\subsection{Statistici de compresie}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}lr@{}}
+\toprule
+\textbf{Metrică} & \textbf{Valoare} \\
+\midrule
+Puncte totale & 68,229 \\
+Variabile & 8 \\
+Blocuri (2 ore) & 262 \\
+Dimensiune originală & 4,912,488 bytes \\
+Dimensiune comprimată & 1,190,271 bytes \\
+Rata de compresie & 4.13x \\
+Bytes per punct & 17.45 \\
+Economie & 75.8\% \\
+\bottomrule
+\end{tabular}
+\caption{Rezultate compresie pentru Room Climate}
+\label{tab:room-results}
+\end{table}
+
+\subsection{Analiza pe variabile}
+
+Diferitele variabile din setul Room Climate au comportamente distincte care afectează compresia:
+
+\begin{itemize}
+    \item \textbf{Temperatură și umiditate}: Variază lent și continuu, producând multe XOR-uri cu puțini biți semnificativi. Compresie foarte bună.
+
+    \item \textbf{Variabile binare} (ocupare, ușă, fereastră): Valorile sunt 0 sau 1, producând fie XOR = 0 (identic), fie diferențe mari când se schimbă starea.
+
+    \item \textbf{Senzori de lumină}: Variabilitate moderată, dar cu tendința de a rămâne constanți pe perioade lungi (noapte vs. zi).
+\end{itemize}
+
+\subsection{Comparație cu stocarea separată}
+
+Dacă am fi tratat fiecare variabilă ca o serie separată (duplicând timestamp-urile), dimensiunea ar fi fost:
+
+\begin{equation}
+    \text{Dimensiune separată} = 8 \times 68,229 \times 16 = 8,733,312 \text{ bytes}
+\end{equation}
+
+Stocarea multivariată (un singur stream de timestamp-uri) economisește:
+\begin{equation}
+    8,733,312 - 4,912,488 = 3,820,824 \text{ bytes} \approx 3.6 \text{ MB}
+\end{equation}
+
+doar din evitarea duplicării timestamp-urilor, înainte de compresie.
+
+\section{Distribuția biților}
+
+\subsection{Timestamp-uri}
+
+Analiza distribuției valorilor delta-of-delta pentru setul Room Climate:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}lrr@{}}
+\toprule
+\textbf{Bucket} & \textbf{Procent} & \textbf{Biți} \\
+\midrule
+$D = 0$ & $\sim$85\% & 1 \\
+$D \in [-64, 63]$ & $\sim$12\% & 9 \\
+$D \in [-256, 255]$ & $\sim$2\% & 12 \\
+$D \in [-2048, 2047]$ & $\sim$0.8\% & 16 \\
+Altfel & $\sim$0.2\% & 36 \\
+\bottomrule
+\end{tabular}
+\caption{Distribuția delta-of-delta pentru Room Climate}
+\label{tab:dod-dist}
+\end{table}
+
+Media ponderată: $\sim$2.3 biți per timestamp.
+
+\subsection{Valori}
+
+Distribuția tipurilor de codare XOR:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}lrr@{}}
+\toprule
+\textbf{Caz} & \textbf{Procent} & \textbf{Biți medii} \\
+\midrule
+XOR = 0 (identic) & $\sim$45\% & 1 \\
+Refolosire fereastră & $\sim$35\% & $\sim$25 \\
+Fereastră nouă & $\sim$20\% & $\sim$40 \\
+\bottomrule
+\end{tabular}
+\caption{Distribuția codării XOR pentru Room Climate}
+\label{tab:xor-dist}
+\end{table}
+
+\section{Efectul dimensiunii blocului}
+
+S-a testat impactul dimensiunii blocului asupra ratei de compresie:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Dimensiune bloc} & \textbf{Rata compresie} & \textbf{Nr. blocuri} \\
+\midrule
+30 minute & 3.8x & 1048 \\
+1 oră & 4.0x & 524 \\
+2 ore (standard) & 4.13x & 262 \\
+4 ore & 4.2x & 131 \\
+\bottomrule
+\end{tabular}
+\caption{Impactul dimensiunii blocului}
+\label{tab:block-size}
+\end{table}
+
+Blocurile mai mari oferă compresie mai bună (contextul XOR se păstrează mai mult), dar:
+\begin{itemize}
+    \item Cresc latența pentru interogări pe intervale scurte;
+    \item Necesită mai multă memorie pentru decodare;
+    \item Sunt mai sensibile la corupție (pierderea unui bloc = pierdere mai mare de date).
+\end{itemize}
+
+Pragul de 2 ore reprezintă un compromis rezonabil, validat empiric de echipa Facebook.
+
+\section{Validarea corectitudinii}
+
+Toate testele au trecut validarea round-trip:
+
+\begin{lstlisting}[language=Python, caption={Verificare round-trip}]
+# Comprima
+compressed = series.get_compressed_data()
+
+# Decomprima
+decoded = decode_series(compressed, count, var_names)
+
+# Verifica
+for original, decoded in zip(original_data, decoded_data):
+    assert original.timestamp == decoded.timestamp
+    for var in var_names:
+        assert original.values[var] == decoded.values[var]
+
+print("[OK] Round-trip validation passed!")
+\end{lstlisting}
+
+Toate valorile sunt recuperate exact (bit-perfect), confirmând caracterul \textit{lossless} al compresiei.
+
+\section{Comparație cu articolul original}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Metrică} & \textbf{Gorilla (Facebook)} & \textbf{Implementarea noastră} \\
+\midrule
+Bytes/punct (medie) & 1.37 & 4--7 \\
+\% timestamps cu D=0 & 96.39\% & 85\% \\
+\% valori XOR=0 & 59.06\% & 45\% \\
+Rata compresie & 12x & 2--4x \\
+\bottomrule
+\end{tabular}
+\caption{Comparație cu rezultatele raportate în articolul Gorilla}
+\label{tab:comparison}
+\end{table}
+
+Diferențele se explică prin:
+
+\begin{enumerate}
+    \item \textbf{Caracteristicile datelor}: Datele Facebook provin de la sisteme de monitorizare foarte regulate (interval fix de 60s), în timp ce seturile noastre au mai mult jitter.
+
+    \item \textbf{Tipul valorilor}: Monitorizarea Facebook folosește preponderent contoare (integers convertiți la double), care produc XOR-uri mai compresibile decât măsurătorile analogice de temperatură.
+
+    \item \textbf{Scala}: La 2 miliarde de serii, efectele statistice se netezesc; la câteva sute de puncte, variabilitatea este mai mare.
+\end{enumerate}
+
+Cu toate acestea, implementarea demonstrează corectitudinea algoritmului și obține rate de compresie semnificative (2--4x) pe date reale diverse.

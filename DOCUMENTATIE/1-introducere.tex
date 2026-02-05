@@ -1,0 +1,62 @@
+\chapter{Introducere}
+
+\section{Contextul problemei}
+
+O \textbf{serie de timp} este o secvență ordonată de observații înregistrate la momente succesive de timp, de obicei la intervale regulate. Formal, o serie temporală poate fi definită ca o funcție:
+\begin{equation}
+    X: T \rightarrow \mathbb{R}, \quad X = \{(t_1, x_1), (t_2, x_2), \ldots, (t_n, x_n)\}
+\end{equation}
+unde $T \subseteq \mathbb{Z}$ reprezintă mulțimea timestamp-urilor (de regulă, în milisecunde sau secunde de la epoca Unix), iar $x_i \in \mathbb{R}$ reprezintă valoarea observată la momentul $t_i$.
+
+Aplicațiile care generează serii de timp sunt omniprezente în infrastructura digitală contemporană, iar
+volumul de date generate de aceste sisteme este enorm. Pentru a ilustra scala problemei, 
+să considerăm sistemul de monitorizare al companiei Facebook (Meta), descris în articolul original Gorilla \cite{gorilla2015}:
+\begin{itemize}
+    \item Peste \textbf{2 miliarde} de serii temporale unice;
+    \item Aproximativ \textbf{12 milioane} de datapoints adăugate \textit{în fiecare secundă};
+    \item Aceasta echivalează cu peste \textbf{1 trilion} de puncte pe zi;
+    \item La 16 bytes per datapoint (8 pentru timestamp + 8 pentru valoare), rezultă un necesar de aproximativ \textbf{16 TB de RAM} zilnic.
+\end{itemize}
+
+Această rată masivă de ingestie a datelor face imposibilă stocarea necomprimată și impune dezvoltarea unor tehnici eficiente de compresie.
+
+\section{Motivația proiectului}
+
+Stocarea seriilor temporale prezintă provocări specifice care diferă de cele întâlnite în bazele de date tradiționale:
+
+\subsection{Cerințe de performanță}
+
+Sistemele de monitorizare necesită:
+\begin{enumerate}
+    \item \textbf{Disponibilitate ridicată pentru scrieri}: Datele trebuie să poată fi scrise în orice moment, chiar și în prezența unor defecțiuni parțiale ale sistemului. O rată ridicată de succes pentru operațiile de scriere este esențială, deoarece pierderea datelor de monitorizare poate masca probleme critice.
+
+    \item \textbf{Latență redusă pentru citiri}: Interogările trebuie să returneze rezultate în milisecunde, nu secunde. Aceasta permite inginerilor să reacționeze rapid la anomalii și să diagnosticheze probleme în timp real.
+
+    \item \textbf{Prioritizarea datelor recente}: În contextul monitorizării, datele recente sunt mult mai valoroase decât cele vechi. Faptul că un serviciu a fost indisponibil acum 5 minute este mai relevant decât același eveniment petrecut acum o săptămână.
+\end{enumerate}
+
+\subsection{Particularități ale datelor}
+
+Seriile temporale de monitorizare au proprietăți distincte care pot fi exploatate pentru compresie:
+
+\begin{enumerate}
+    \item \textbf{Timestamp-uri cvasi-periodice}: Majoritatea sistemelor de monitorizare colectează date la intervale regulate (de exemplu, la fiecare 60 de secunde). Deși pot exista mici variații (jitter) datorită latențelor de rețea sau încărcării sistemului, intervalul dintre timestamp-uri consecutive rămâne relativ constant.
+
+    \item \textbf{Corelație temporală a valorilor}: Valorile consecutive dintr-o serie temporală tind să fie similare. Temperatura într-o cameră nu sare brusc de la 22°C la 50°C; utilizarea CPU a unui server nu variază dramatic de la o secundă la alta în condiții normale.
+
+    \item \textbf{Toleranță la pierderi minore}: Spre deosebire de sistemele financiare sau medicale, sistemele de monitorizare pot tolera pierderea ocazională a câtorva puncte de date, atâta timp cât tendințele generale rămân vizibile.
+\end{enumerate}
+
+\section{Obiectivele proiectului}
+
+Prezentul proiect își propune:
+
+\begin{enumerate}
+    \item \textbf{Înțelegerea și implementarea algoritmului Gorilla}: Studiul detaliat al tehnicilor de compresie delta-of-delta și XOR, precum și implementarea lor completă în Python.
+
+    \item \textbf{Suport pentru serii multivariate}: Extinderea algoritmului pentru a gestiona eficient serii cu mai multe variabile per timestamp.
+
+    \item \textbf{Validarea experimentală}: Testarea implementării pe seturi de date reale și măsurarea ratelor de compresie obținute, comparativ cu stocarea naivă.
+
+    \item \textbf{Documentarea completă}: Prezentarea detaliată a fundamentelor teoretice, a algoritmilor și a deciziilor de implementare.
+\end{enumerate}
