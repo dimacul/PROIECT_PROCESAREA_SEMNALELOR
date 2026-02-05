@@ -69,6 +69,61 @@ class ValueEncoder:
         self._prev_value_bits = v_bits
         self._count += 1
 
+    def add_value_verification(self, val: float) -> None:
+        v_bits = self._float_to_bits(val)
+
+        if self._count == 0:
+            # Prima valoare se scrie mereu pe 64 de biți
+            self._writer.write_u64(v_bits)
+            self._prev_value_bits = v_bits
+            self._count = 1
+            return
+
+        xor = v_bits ^ self._prev_value_bits 
+
+        if xor == 0:
+            # Cazul ideal: valoarea este identică cu cea anterioară
+            self._writer.write_bit(0) 
+        else:
+            # Există o diferență: scriem bit de control '1'
+            self._writer.write_bit(1)
+            # Calculăm leading și trailing zeros pentru a găsi biții semnificativi
+            bin_xor = bin(xor)[2:].zfill(64)
+            leading = len(bin_xor) - len(bin_xor.lstrip('0'))
+            trailing = len(bin_xor) - len(bin_xor.rstrip('0'))
+
+            # Limităm la 31 pentru a încăpea pe 5 biți conform algoritmului
+            if leading > 31: leading = 31
+
+            # Verificăm dacă putem refolosi fereastra anterioară de biți semnificativi
+            if (self._prev_leading != 255 and 
+                leading >= self._prev_leading and 
+                trailing >= self._prev_trailing and not
+                64 - self._prev_trailing - self._prev_leading > 64 - trailing - leading): #verificam daca fereastra anterioara este mai mare cu 11 biti fata de fereastra actuala
+                
+                # Bit control '0': refolosim fereastra
+                self._writer.write_bit(0)
+                meaningful_bits = 64 - self._prev_leading - self._prev_trailing
+                self._writer.write_bits(xor >> self._prev_trailing, meaningful_bits)
+            else:
+                # Bit control '1': definim o fereastra noua
+                self._writer.write_bit(1)
+                self._writer.write_bits(leading, 5)
+
+                meaningful_bits = 64 - leading - trailing
+                # IMPORTANT: Stocam (meaningful_bits - 1) pe 6 biti
+                # Aceasta permite reprezentarea valorilor 1-64 ca 0-63
+                # (meaningful_bits e minim 1 cand XOR != 0)
+                self._writer.write_bits(meaningful_bits - 1, 6)
+                self._writer.write_bits(xor >> trailing, meaningful_bits)
+
+                # Actualizam parametrii ferestrei pentru urmatoarea valoare
+                self._prev_leading = leading
+                self._prev_trailing = trailing
+
+        self._prev_value_bits = v_bits
+        self._count += 1
+
 class ValueDecoder:
     __slots__ = ("_reader", "_prev_value_bits", "_prev_leading", "_prev_trailing", "_count")
 
@@ -84,28 +139,34 @@ class ValueDecoder:
 
     def read_value(self) -> float:
         if self._count == 0:
-            # Prima valoare este stocată integral
             bits = self._reader.read_u64()
             self._prev_value_bits = bits
             self._count = 1
             return self._bits_to_float(bits)
 
+        # PAS 1: Citim primul bit de control (Diferență?)
         if self._reader.read_bit() == 0:
-            # Bit 0 înseamnă XOR 0 (valoare identică)
+            # XOR este 0, valoarea e identică
             return self._bits_to_float(self._prev_value_bits)
 
-        # Bit 1 inseamna ca avem o diferenta XOR
+        # PAS 2: Citim al doilea bit de control (Refolosire vs Nou?)
+        # Aici este locul unde condiția ta de 11 biți a dictat ce s-a scris
         if self._reader.read_bit() == 0:
-            # Refolosim fereastra de biti semnificativi anterioara
+            # Refolosim fereastra anterioară (cea salvată în self._prev_leading/trailing)
             meaningful_bits = 64 - self._prev_leading - self._prev_trailing
         else:
-            # Citim o fereastra noua (leading zeros si lungime)
+            # Definăm o fereastră nouă (citim 5 biți + 6 biți)
             self._prev_leading = self._reader.read_bits(5)
-            # IMPORTANT: Adaugam 1 pentru ca encoder-ul a stocat (meaningful_bits - 1)
-            meaningful_bits = self._reader.read_bits(6) + 1
+            length_bits = self._reader.read_bits(6)
+            meaningful_bits = length_bits + 1
+            # ACTUALIZĂM trailing pentru a fi folosit la viitoarele refolosiri
             self._prev_trailing = 64 - self._prev_leading - meaningful_bits
 
-        # Extragem biții semnificativi și reconstruim valoarea prin XOR
+        # PAS 3: Citim biții semnificativi (Aici crapă dacă meaningful_bits e greșit)
+        if meaningful_bits < 0 or meaningful_bits > 64:
+             # Debugging: Dacă ajungi aici, s-a pierdut alinierea biților
+             raise ValueError(f"Eroare fatală: meaningful_bits invalid ({meaningful_bits})")
+
         xor_val = self._reader.read_bits(meaningful_bits)
         xor_val <<= self._prev_trailing
         

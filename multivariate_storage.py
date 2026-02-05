@@ -101,6 +101,40 @@ class MultiVariateBlock:
 
         self._count += 1
 
+    def add_verification(self, timestamp: int, values: Dict[str, float]) -> None:
+        """
+        Adaugă un punct multivariate în bloc.
+
+        Args:
+            timestamp: Timestamp-ul punctului (int64, ex: milisecunde Unix)
+            values: Dicționar cu valorile pentru fiecare variabilă
+                    Ex: {"temp": 20.5, "humidity": 42.3, "light": 185.7}
+
+        Raises:
+            ValueError: Dacă lipsesc variabile sau blocul e închis
+        """
+        if self._closed:
+            raise ValueError("Blocul este închis, nu se mai pot adăuga date!")
+
+        # Verificăm că avem toate variabilele
+        missing = set(self._var_names) - set(values.keys())
+        if missing:
+            raise ValueError(f"Lipsesc variabilele: {missing}")
+
+        # Setăm start_timestamp dacă e primul punct
+        if self._count == 0 and self._start_timestamp is None:
+            self._start_timestamp = timestamp
+
+        # 1. Encodăm timestamp-ul O SINGURĂ DATĂ
+        self._ts_encoder.add_timestamp(timestamp)
+
+        # 2. Encodăm fiecare valoare în encoder-ul său dedicat
+        #    IMPORTANT: Ordinea trebuie să fie constantă!
+        for name in self._var_names:
+            self._val_encoders[name].add_value_verification(float(values[name]))
+
+        self._count += 1
+
     def seal(self) -> bytes:
         """
         Închide blocul și returnează datele comprimate.
