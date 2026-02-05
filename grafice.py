@@ -171,8 +171,10 @@ def plot_room_climate_timeseries(data, output_path):
     format_time_axis(ax3)
 
     ax4 = axes[3]
-    ax4.plot(t_sort, door_sort, color='#c0392b', linewidth=1.5, label='Ușă')
-    ax4.plot(t_sort, win_sort, color='#16a085', linewidth=1.5, label='Fereastră')
+    # 'where='post'' asigură că starea se schimbă exact în momentul înregistrării noi
+    ax4.step(t_sort, door_sort, color='#c0392b', linewidth=1.5, label='Ușă', where='post')
+    ax4.step(t_sort, win_sort, color='#16a085', linewidth=1.5, label='Fereastră', where='post')
+
     ax4.set_ylabel('Status (Inchis/Deschis)', fontweight='bold')
     ax4.set_ylim([-0.1, 1.1])
     ax4.set_yticks([0, 1])
