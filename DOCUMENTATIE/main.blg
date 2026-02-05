@@ -1,0 +1,16 @@
+[0] Config.pm:328> INFO - This is Biber 2.21
+[1] Config.pm:331> INFO - Logfile is 'main.blg'
+[138] biber-MSWIN64:342> INFO - === 
+[186] Biber.pm:421> INFO - Reading 'main.bcf'
+[303] Biber.pm:1002> INFO - Found 1 citekeys in bib section 0
+[317] Biber.pm:4487> INFO - Processing section 0
+[329] Biber.pm:4678> INFO - Looking for bibtex file 'bibliography.bib' for section 0
+[410] bibtex.pm:1713> INFO - LaTeX decoding ...
+[427] bibtex.pm:1519> INFO - Found BibTeX data source 'bibliography.bib'
+[455] UCollate.pm:68> INFO - Overriding locale 'ro-RO' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[455] UCollate.pm:68> INFO - Overriding locale 'ro-RO' defaults 'variable = shifted' with 'variable = non-ignorable'
+[455] Biber.pm:4307> INFO - Sorting list 'nty/global//global/global/global' of type 'entry' with template 'nty' and locale 'ro-RO'
+[456] bbl.pm:676> INFO - Writing 'main.bbl' with encoding 'UTF-8'
+[456] bbl.pm:779> INFO - Output to main.bbl
+[480] Biber.pm:132> WARN - I didn't find a database entry for 'fake_citation' (section 0)
+[480] Biber.pm:134> INFO - WARNINGS: 1

@@ -1,13 +1,11 @@
-"""
-Script principal pentru demonstrarea compresiei Gorilla.
-
-Proceseaza:
-1. Serie UNIVARIATA: data_cpu.csv (datetime, cpu_load)
-2. Serie MULTIVARIATA: room_climate_location_A.csv (8 variabile)
-
-Afiseaza metrici de performanta si efectueaza query-uri pe datele comprimate.
-Salveaza fisierele binare comprimate in folderul 'compressed_output'.
-"""
+# Script principal pentru demonstrarea compresiei Gorilla
+#
+# Proceseaza:
+# 1. Serie UNIVARIATA: data_cpu.csv (datetime, cpu_load)
+# 2. Serie MULTIVARIATA: room_climate_location_A.csv (8 variabile)
+#
+# Afiseaza metrici de performanta si efectueaza query-uri pe datele comprimate
+# Salveaza fisierele binare comprimate in folderul 'compressed_output'
 
 import os
 import time
@@ -28,8 +26,8 @@ ROOM_CLIMATE_CSV = os.path.join(TIMESERIES_FOLDER, "room_climate_location_A.csv"
 COMPRESSED_OUTPUT_FOLDER = os.path.join(os.path.dirname(__file__), "compressed_output")
 
 
+# Formateaza dimensiunea in bytes
 def format_bytes(size: int) -> str:
-    """Formateaza dimensiunea in bytes."""
     for unit in ['B', 'KB', 'MB', 'GB']:
         if size < 1024:
             return f"{size:.2f} {unit}"
@@ -37,14 +35,11 @@ def format_bytes(size: int) -> str:
     return f"{size:.2f} TB"
 
 
+# Salveaza seria comprimata in fisiere binare
+# Genereaza:
+# - {output_prefix}.bin - datele comprimate (toate blocurile concatenate)
+# - {output_prefix}.meta.json - metadata (variabile, numar puncte, blocuri)
 def save_compressed_series(series: MultiVariateSeries, output_prefix: str, series_name: str):
-    """
-    Salveaza seria comprimata in fisiere binare.
-
-    Genereaza:
-    - {output_prefix}.bin - datele comprimate (toate blocurile concatenate)
-    - {output_prefix}.meta.json - metadata (variabile, numar puncte, blocuri)
-    """
     # Creare folder daca nu exista
     output_dir = os.path.dirname(output_prefix)
     if output_dir and not os.path.exists(output_dir):
@@ -87,12 +82,9 @@ def save_compressed_series(series: MultiVariateSeries, output_prefix: str, serie
     return bin_path, meta_path, total_bytes
 
 
+# Incarca fisierul CPU CSV intr-o serie univariata
+# Format: datetime, cpu_load
 def load_cpu_csv(filepath: str) -> MultiVariateSeries:
-    """
-    Incarca fisierul CPU CSV intr-o serie univariata.
-
-    Format: datetime, cpu_load
-    """
     series = MultiVariateSeries(["cpu_load"], block_duration_ms=7200000)  # blocuri de 2 ore
 
     with open(filepath, 'r', newline='', encoding='utf-8') as f:
@@ -115,8 +107,8 @@ def load_cpu_csv(filepath: str) -> MultiVariateSeries:
     return series
 
 
+# Demonstreaza compresia pentru seria univariata (CPU)
 def demo_univariate():
-    """Demonstreaza compresia pentru seria univariata (CPU)."""
     print("=" * 70)
     print("SERIA UNIVARIATA: CPU Load Average")
     print("=" * 70)
@@ -184,8 +176,8 @@ def demo_univariate():
     return series
 
 
+# Demonstreaza compresia pentru seria multivariata (Room Climate)
 def demo_multivariate():
-    """Demonstreaza compresia pentru seria multivariata (Room Climate)."""
     print("\n" + "=" * 70)
     print("SERIA MULTIVARIATA: Room Climate (8 variabile)")
     print("=" * 70)
@@ -262,15 +254,15 @@ def demo_multivariate():
     return series
 
 
+# Creeaza folderul pentru output daca nu exista
 def ensure_output_folder():
-    """Creeaza folderul pentru output daca nu exista."""
     if not os.path.exists(COMPRESSED_OUTPUT_FOLDER):
         os.makedirs(COMPRESSED_OUTPUT_FOLDER)
         print(f"Folder creat: {COMPRESSED_OUTPUT_FOLDER}")
 
 
+# Afiseaza comparatia finala intre cele doua serii
 def comparatie_finala(cpu_stats, room_stats):
-    """Afiseaza comparatia finala intre cele doua serii."""
     print("\n" + "=" * 70)
     print("COMPARATIE FINALA")
     print("=" * 70)

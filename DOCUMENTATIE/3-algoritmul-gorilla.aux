@@ -1,51 +1,54 @@
 \relax 
 \providecommand\hyper@newdestlabel[2]{}
-\@writefile{toc}{\contentsline {chapter}{\numberline {3}Algoritmul Gorilla}{12}{chapter.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {3}Algoritmul Gorilla}{13}{chapter.3}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {section}{\numberline {3.1}Arhitectura generală}{12}{section.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.1}Structura datelor}{12}{subsection.3.1.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.2}Fluxul de compresie}{12}{subsection.3.1.2}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {3.1}{\ignorespaces \xpg@aux {}{romanian}\ignorespaces Fluxul general de compresie în Gorilla}}{12}{figure.caption.4}\protected@file@percent }
-\newlabel{fig:compression-overview}{{3.1}{12}{\texorpdfstring {\xpg@aux {\xpg@current@opts }{\languagename }}{}\ignorespaces Fluxul general de compresie în Gorilla}{figure.caption.4}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3.2}Compresia Timestamp-urilor: Delta-of-Delta}{13}{section.3.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.1}Observația cheie}{13}{subsection.3.2.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.2}Delta encoding simplu}{13}{subsection.3.2.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.3}Delta-of-delta encoding}{13}{subsection.3.2.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.4}Schema de codare variabilă}{14}{subsection.3.2.4}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {3.1}{\ignorespaces \xpg@aux {}{romanian}\ignorespaces Schema de codare pentru delta-of-delta}}{14}{table.caption.5}\protected@file@percent }
-\newlabel{tab:dod-encoding}{{3.1}{14}{\texorpdfstring {\xpg@aux {\xpg@current@opts }{\languagename }}{}\ignorespaces Schema de codare pentru delta-of-delta}{table.caption.5}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.5}Reprezentarea în complement față de 2}{14}{subsection.3.2.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.6}Algoritmul de codare}{14}{subsection.3.2.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.7}Algoritmul de decodare}{14}{subsection.3.2.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.8}Eficiența compresiei timestamp-urilor}{14}{subsection.3.2.8}\protected@file@percent }
-\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces \xpg@aux {}{romanian}\ignorespaces Codare timestamp cu delta-of-delta}}{15}{algorithm.1}\protected@file@percent }
-\newlabel{alg:ts-encode}{{1}{15}{\texorpdfstring {\xpg@aux {\xpg@current@opts }{\languagename }}{}\ignorespaces Codare timestamp cu delta-of-delta}{algorithm.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3.3}Compresia Valorilor: XOR Encoding}{15}{section.3.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.1}Provocarea compresiei floating-point}{15}{subsection.3.3.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {3.2}{\ignorespaces \xpg@aux {}{romanian}\ignorespaces Structura IEEE 754 double-precision (64 biți)}}{15}{figure.caption.6}\protected@file@percent }
-\newlabel{fig:ieee754}{{3.2}{15}{\texorpdfstring {\xpg@aux {\xpg@current@opts }{\languagename }}{}\ignorespaces Structura IEEE 754 double-precision (64 biți)}{figure.caption.6}{}}
-\@writefile{loa}{\contentsline {algorithm}{\numberline {2}{\ignorespaces \xpg@aux {}{romanian}\ignorespaces Decodare timestamp}}{16}{algorithm.2}\protected@file@percent }
-\newlabel{alg:ts-decode}{{2}{16}{\texorpdfstring {\xpg@aux {\xpg@current@opts }{\languagename }}{}\ignorespaces Decodare timestamp}{algorithm.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.2}Observația cheie: XOR pentru valori similare}{16}{subsection.3.3.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.3}Schema de codare XOR}{17}{subsection.3.3.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{Prima valoare}{17}{section*.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{Valori ulterioare}{17}{section*.8}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {3.2}{\ignorespaces \xpg@aux {}{romanian}\ignorespaces Schema de codare XOR pentru valori}}{17}{table.caption.9}\protected@file@percent }
-\newlabel{tab:xor-encoding}{{3.2}{17}{\texorpdfstring {\xpg@aux {\xpg@current@opts }{\languagename }}{}\ignorespaces Schema de codare XOR pentru valori}{table.caption.9}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.4}Calculul leading și trailing zeros}{18}{subsection.3.3.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.5}Algoritmul de codare pentru valori}{18}{subsection.3.3.5}\protected@file@percent }
-\@writefile{loa}{\contentsline {algorithm}{\numberline {3}{\ignorespaces \xpg@aux {}{romanian}\ignorespaces Codare valoare cu XOR}}{18}{algorithm.3}\protected@file@percent }
-\newlabel{alg:val-encode}{{3}{18}{\texorpdfstring {\xpg@aux {\xpg@current@opts }{\languagename }}{}\ignorespaces Codare valoare cu XOR}{algorithm.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.6}Eficiența compresiei valorilor}{19}{subsection.3.3.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {3.4}Compresia combinată}{19}{section.3.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {3.5}Analiza complexității}{19}{section.3.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.5.1}Complexitate temporală}{19}{subsection.3.5.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.5.2}Complexitate spațială}{19}{subsection.3.5.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {3.6}Extindere pentru serii multivariate}{20}{section.3.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.6.1}Strategia de compresie}{20}{subsection.3.6.1}\protected@file@percent }
+\newlabel{chap:gorilla}{{3}{13}{Algoritmul Gorilla}{chapter.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.1}Arhitectura generală}{13}{section.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.1}Structura datelor}{13}{subsection.3.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.2}Fluxul de compresie}{13}{subsection.3.1.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3.1}{\ignorespaces \xpg@aux {}{romanian}\ignorespaces Fluxul general de compresie în Gorilla}}{13}{figure.caption.4}\protected@file@percent }
+\newlabel{fig:compression-overview}{{3.1}{13}{\texorpdfstring {\xpg@aux {\xpg@current@opts }{\languagename }}{}\ignorespaces Fluxul general de compresie în Gorilla}{figure.caption.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.2}Compresia Timestamp-urilor: Delta-of-Delta}{14}{section.3.2}\protected@file@percent }
+\newlabel{sec:dod}{{3.2}{14}{Compresia Timestamp-urilor: Delta-of-Delta}{section.3.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.1}Observația cheie}{14}{subsection.3.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.2}Delta encoding simplu}{14}{subsection.3.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.3}Delta-of-delta encoding}{14}{subsection.3.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.4}Schema de codare variabilă}{15}{subsection.3.2.4}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3.1}{\ignorespaces \xpg@aux {}{romanian}\ignorespaces Schema de codare pentru delta-of-delta}}{15}{table.caption.5}\protected@file@percent }
+\newlabel{tab:dod-encoding}{{3.1}{15}{\texorpdfstring {\xpg@aux {\xpg@current@opts }{\languagename }}{}\ignorespaces Schema de codare pentru delta-of-delta}{table.caption.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.5}Reprezentarea în complement față de 2}{15}{subsection.3.2.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.6}Algoritmul de codare}{15}{subsection.3.2.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.7}Algoritmul de decodare}{15}{subsection.3.2.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.8}Eficiența compresiei timestamp-urilor}{15}{subsection.3.2.8}\protected@file@percent }
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces \xpg@aux {}{romanian}\ignorespaces Codare timestamp cu delta-of-delta}}{16}{algorithm.1}\protected@file@percent }
+\newlabel{alg:ts-encode}{{1}{16}{\texorpdfstring {\xpg@aux {\xpg@current@opts }{\languagename }}{}\ignorespaces Codare timestamp cu delta-of-delta}{algorithm.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.3}Compresia Valorilor: XOR Encoding}{16}{section.3.3}\protected@file@percent }
+\newlabel{sec:xor}{{3.3}{16}{Compresia Valorilor: XOR Encoding}{section.3.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.1}Provocarea compresiei floating-point}{16}{subsection.3.3.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3.2}{\ignorespaces \xpg@aux {}{romanian}\ignorespaces Structura IEEE 754 double-precision (64 biți)}}{16}{figure.caption.6}\protected@file@percent }
+\newlabel{fig:ieee754}{{3.2}{16}{\texorpdfstring {\xpg@aux {\xpg@current@opts }{\languagename }}{}\ignorespaces Structura IEEE 754 double-precision (64 biți)}{figure.caption.6}{}}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {2}{\ignorespaces \xpg@aux {}{romanian}\ignorespaces Decodare timestamp}}{17}{algorithm.2}\protected@file@percent }
+\newlabel{alg:ts-decode}{{2}{17}{\texorpdfstring {\xpg@aux {\xpg@current@opts }{\languagename }}{}\ignorespaces Decodare timestamp}{algorithm.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.2}Observația cheie: XOR pentru valori similare}{17}{subsection.3.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.3}Schema de codare XOR}{18}{subsection.3.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Prima valoare}{18}{section*.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Valori ulterioare}{18}{section*.8}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3.2}{\ignorespaces \xpg@aux {}{romanian}\ignorespaces Schema de codare XOR pentru valori}}{18}{table.caption.9}\protected@file@percent }
+\newlabel{tab:xor-encoding}{{3.2}{18}{\texorpdfstring {\xpg@aux {\xpg@current@opts }{\languagename }}{}\ignorespaces Schema de codare XOR pentru valori}{table.caption.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.4}Calculul leading și trailing zeros}{19}{subsection.3.3.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.5}Algoritmul de codare pentru valori}{19}{subsection.3.3.5}\protected@file@percent }
+\@writefile{loa}{\contentsline {algorithm}{\numberline {3}{\ignorespaces \xpg@aux {}{romanian}\ignorespaces Codare valoare cu XOR}}{19}{algorithm.3}\protected@file@percent }
+\newlabel{alg:val-encode}{{3}{19}{\texorpdfstring {\xpg@aux {\xpg@current@opts }{\languagename }}{}\ignorespaces Codare valoare cu XOR}{algorithm.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.6}Eficiența compresiei valorilor}{20}{subsection.3.3.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3.4}Compresia combinată}{20}{section.3.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3.5}Analiza complexității}{20}{section.3.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5.1}Complexitate temporală}{20}{subsection.3.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5.2}Complexitate spațială}{20}{subsection.3.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3.6}Extindere pentru serii multivariate}{21}{section.3.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.6.1}Strategia de compresie}{21}{subsection.3.6.1}\protected@file@percent }
 \@setckpt{3-algoritmul-gorilla}{
-\setcounter{page}{21}
+\setcounter{page}{22}
 \setcounter{equation}{9}
 \setcounter{enumi}{2}
 \setcounter{enumii}{0}
@@ -176,6 +179,7 @@
 \setcounter{smartand}{1}
 \setcounter{bbx:relatedcount}{0}
 \setcounter{bbx:relatedtotal}{0}
+\setcounter{float@type}{16}
 \setcounter{lstnumber}{1}
 \setcounter{section@level}{2}
 \setcounter{Item}{20}
@@ -183,7 +187,6 @@
 \setcounter{Hy@AnnotLevel}{0}
 \setcounter{bookmark@seq@number}{45}
 \setcounter{parentequation}{0}
-\setcounter{float@type}{16}
 \setcounter{algorithm}{3}
 \setcounter{ALG@line}{20}
 \setcounter{ALG@rem}{0}

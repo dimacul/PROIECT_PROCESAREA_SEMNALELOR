@@ -1,75 +1,39 @@
 \relax 
 \providecommand\hyper@newdestlabel[2]{}
-\@writefile{toc}{\contentsline {chapter}{\numberline {4}Implementare}{21}{chapter.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {4}Implementare}{22}{chapter.4}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {section}{\numberline {4.1}Structura proiectului}{21}{section.4.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {4.1}{\ignorespaces \xpg@aux {}{romanian}\ignorespaces Diagrama dependențelor între module}}{21}{figure.caption.10}\protected@file@percent }
-\newlabel{fig:module-deps}{{4.1}{21}{\texorpdfstring {\xpg@aux {\xpg@current@opts }{\languagename }}{}\ignorespaces Diagrama dependențelor între module}{figure.caption.10}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.2}Operații pe biți: BitWriter și BitReader}{22}{section.4.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.1}Provocarea}{22}{subsection.4.2.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.2}Clasa BitWriter}{22}{subsection.4.2.2}\protected@file@percent }
-\newlabel{lst:bitwriter}{{4.1}{22}{Structura clasei BitWriter}{lstlisting.4.1}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {4.1}{\ignorespaces Structura clasei BitWriter}}{22}{lstlisting.4.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{Metoda write\_bit}{22}{section*.11}\protected@file@percent }
-\newlabel{lst:writebit}{{4.2}{22}{Metoda write\_bit}{lstlisting.4.2}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {4.2}{\ignorespaces Metoda write\_bit}}{22}{lstlisting.4.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{Metoda write\_bits}{23}{section*.12}\protected@file@percent }
-\newlabel{lst:writebits}{{4.3}{23}{Metoda write\_bits}{lstlisting.4.3}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {4.3}{\ignorespaces Metoda write\_bits}}{23}{lstlisting.4.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{Reprezentarea în complement față de 2}{23}{section*.13}\protected@file@percent }
-\newlabel{lst:twos}{{4.4}{23}{Conversie la complement fata de 2}{lstlisting.4.4}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {4.4}{\ignorespaces Conversie la complement fata de 2}}{23}{lstlisting.4.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.3}Clasa BitReader}{23}{subsection.4.2.3}\protected@file@percent }
-\newlabel{lst:bitreader}{{4.5}{23}{Structura clasei BitReader}{lstlisting.4.5}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {4.5}{\ignorespaces Structura clasei BitReader}}{23}{lstlisting.4.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{Metoda read\_bit}{24}{section*.14}\protected@file@percent }
-\newlabel{lst:readbit}{{4.6}{24}{Metoda read\_bit}{lstlisting.4.6}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {4.6}{\ignorespaces Metoda read\_bit}}{24}{lstlisting.4.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {4.3}Compresia timestamp-urilor}{24}{section.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4.1}Arhitectura sistemului}{22}{section.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.1}Diagrama dependențelor}{22}{subsection.4.1.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.1}{\ignorespaces \xpg@aux {}{romanian}\ignorespaces Ierarhia dependențelor dintre clase}}{22}{figure.caption.10}\protected@file@percent }
+\newlabel{fig:class-deps}{{4.1}{22}{\texorpdfstring {\xpg@aux {\xpg@current@opts }{\languagename }}{}\ignorespaces Ierarhia dependențelor dintre clase}{figure.caption.10}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.2}Principii de design}{23}{subsection.4.1.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4.2}Nivelul 1: Operații pe biți}{23}{section.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.1}Clasa BitWriter}{23}{subsection.4.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.2}Clasa BitReader}{23}{subsection.4.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4.3}Nivelul 2: Encodere și decodere}{24}{section.4.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3.1}Clasa TimestampEncoder}{24}{subsection.4.3.1}\protected@file@percent }
-\newlabel{lst:tsenc}{{4.7}{24}{Structura TimestampEncoder}{lstlisting.4.7}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {4.7}{\ignorespaces Structura TimestampEncoder}}{24}{lstlisting.4.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{Metoda add\_timestamp}{25}{section*.15}\protected@file@percent }
-\newlabel{lst:addts}{{4.8}{25}{Adaugarea unui timestamp}{lstlisting.4.8}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {4.8}{\ignorespaces Adaugarea unui timestamp}}{25}{lstlisting.4.8}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{Codarea delta-of-delta}{25}{section*.16}\protected@file@percent }
-\newlabel{lst:encodedod}{{4.9}{25}{Codarea delta-of-delta}{lstlisting.4.9}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {4.9}{\ignorespaces Codarea delta-of-delta}}{25}{lstlisting.4.9}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {4.4}Compresia valorilor}{26}{section.4.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.1}Conversia float $\leftrightarrow $ biți}{26}{subsection.4.4.1}\protected@file@percent }
-\newlabel{lst:floatbits}{{4.10}{26}{Conversie float-biti}{lstlisting.4.10}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {4.10}{\ignorespaces Conversie float-biti}}{26}{lstlisting.4.10}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.2}Clasa ValueEncoder}{26}{subsection.4.4.2}\protected@file@percent }
-\newlabel{lst:valenc}{{4.11}{26}{Structura ValueEncoder}{lstlisting.4.11}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {4.11}{\ignorespaces Structura ValueEncoder}}{26}{lstlisting.4.11}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{Metoda add\_value}{27}{section*.17}\protected@file@percent }
-\newlabel{lst:addval}{{4.12}{27}{Adaugarea unei valori}{lstlisting.4.12}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {4.12}{\ignorespaces Adaugarea unei valori}}{27}{lstlisting.4.12}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{Calculul leading/trailing zeros}{27}{section*.18}\protected@file@percent }
-\newlabel{lst:zeros}{{4.13}{27}{Calculul zeros}{lstlisting.4.13}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {4.13}{\ignorespaces Calculul zeros}}{27}{lstlisting.4.13}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{Decizia de refolosire a ferestrei}{28}{section*.19}\protected@file@percent }
-\newlabel{lst:xorenc}{{4.14}{28}{Codarea XOR cu decizie fereastra}{lstlisting.4.14}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {4.14}{\ignorespaces Codarea XOR cu decizie fereastra}}{28}{lstlisting.4.14}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {4.5}Stocare pentru serii multivariate}{28}{section.4.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.1}Clasa MultiVariateBlock}{28}{subsection.4.5.1}\protected@file@percent }
-\newlabel{lst:mvblock}{{4.15}{28}{Structura MultiVariateBlock}{lstlisting.4.15}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {4.15}{\ignorespaces Structura MultiVariateBlock}}{28}{lstlisting.4.15}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.2}Adăugarea unui punct multivariat}{29}{subsection.4.5.2}\protected@file@percent }
-\newlabel{lst:addmv}{{4.16}{29}{Adaugarea unui punct multivariat}{lstlisting.4.16}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {4.16}{\ignorespaces Adaugarea unui punct multivariat}}{29}{lstlisting.4.16}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {4.6}Organizarea în blocuri}{29}{section.4.6}\protected@file@percent }
-\newlabel{lst:blocks}{{4.17}{29}{Gestionarea blocurilor}{lstlisting.4.17}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {4.17}{\ignorespaces Gestionarea blocurilor}}{29}{lstlisting.4.17}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {4.7}Considerații de performanță}{30}{section.4.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.7.1}Utilizarea \_\_slots\_\_}{30}{subsection.4.7.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.7.2}Evitarea alocărilor în bucla principală}{30}{subsection.4.7.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.7.3}Buffer pre-alocat}{30}{subsection.4.7.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.2}Clasa TimestampDecoder}{24}{subsection.4.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.3}Clasa ValueEncoder}{24}{subsection.4.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.4}Clasa ValueDecoder}{25}{subsection.4.3.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4.4}Nivelul 3: Stocare multivariată}{25}{section.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.1}Clasa MultiVariateBlock}{25}{subsection.4.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.2}Clasa MultiVariateDecoder}{25}{subsection.4.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.3}Clasa MultiVariateSeries}{26}{subsection.4.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.4}Clasa MultiVariateStore}{26}{subsection.4.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4.5}Varianta îmbunătățită: Optimizarea ferestrei XOR}{26}{section.4.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.1}Problema algoritmului original}{26}{subsection.4.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.2}Soluția propusă}{27}{subsection.4.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.3}Implementarea}{27}{subsection.4.5.3}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {4.1}{\ignorespaces Condiția îmbunătățită pentru refolosirea ferestrei}}{27}{lstlisting.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.4}Analiza trade-off-ului}{28}{subsection.4.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4.6}Fluxul de date}{28}{section.4.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6.1}Codare (compresie)}{28}{subsection.4.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6.2}Decodare (decompresie)}{28}{subsection.4.6.2}\protected@file@percent }
 \@setckpt{4-implementare}{
-\setcounter{page}{31}
-\setcounter{equation}{0}
-\setcounter{enumi}{2}
+\setcounter{page}{29}
+\setcounter{equation}{4}
+\setcounter{enumi}{4}
 \setcounter{enumii}{0}
 \setcounter{enumiii}{0}
 \setcounter{enumiv}{0}
@@ -77,8 +41,8 @@
 \setcounter{mpfootnote}{0}
 \setcounter{part}{0}
 \setcounter{chapter}{4}
-\setcounter{section}{7}
-\setcounter{subsection}{3}
+\setcounter{section}{6}
+\setcounter{subsection}{2}
 \setcounter{subsubsection}{0}
 \setcounter{paragraph}{0}
 \setcounter{subparagraph}{0}
@@ -198,14 +162,14 @@
 \setcounter{smartand}{1}
 \setcounter{bbx:relatedcount}{0}
 \setcounter{bbx:relatedtotal}{0}
-\setcounter{lstnumber}{6}
+\setcounter{float@type}{16}
+\setcounter{lstnumber}{14}
 \setcounter{section@level}{2}
-\setcounter{Item}{20}
+\setcounter{Item}{31}
 \setcounter{Hfootnote}{0}
 \setcounter{Hy@AnnotLevel}{0}
-\setcounter{bookmark@seq@number}{64}
+\setcounter{bookmark@seq@number}{70}
 \setcounter{parentequation}{0}
-\setcounter{float@type}{16}
 \setcounter{algorithm}{3}
 \setcounter{ALG@line}{20}
 \setcounter{ALG@rem}{0}
@@ -221,6 +185,6 @@
 \setcounter{@pps}{0}
 \setcounter{@ppsavesec}{0}
 \setcounter{@ppsaveapp}{0}
-\setcounter{example}{0}
-\setcounter{lstlisting}{17}
+\setcounter{example}{1}
+\setcounter{lstlisting}{1}
 }

@@ -1,4 +1,5 @@
 \chapter{Algoritmul Gorilla}
+\label{chap:gorilla}
 
 Acest capitol prezintă în detaliu algoritmul de compresie Gorilla, fundamentele sale matematice și schemele de codare utilizate. Algoritmul este compus din două tehnici complementare: \textbf{delta-of-delta encoding} pentru timestamp-uri și \textbf{XOR encoding} pentru valori în virgulă mobilă.
 
@@ -50,6 +51,7 @@ Schema generală de compresie este ilustrată în Figura~\ref{fig:compression-ov
 \end{figure}
 
 \section{Compresia Timestamp-urilor: Delta-of-Delta}
+\label{sec:dod}
 
 \subsection{Observația cheie}
 
@@ -228,6 +230,7 @@ Decodarea citește biții de control pentru a determina lungimea valorii. Vezi \
 Media ponderată rezultă în aproximativ \textbf{1.5 biți per timestamp}, comparativ cu 64 de biți fără compresie.
 
 \section{Compresia Valorilor: XOR Encoding}
+\label{sec:xor}
 
 \subsection{Provocarea compresiei floating-point}
 

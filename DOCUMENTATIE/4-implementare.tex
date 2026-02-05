@@ -1,425 +1,387 @@
 \chapter{Implementare}
 
-Acest capitol prezintă implementarea practică a algoritmului Gorilla în limbajul Python. Sunt descrise structura proiectului, clasele principale și deciziile de design.
+Acest capitol prezintă arhitectura și clasele implementării algoritmului Gorilla în Python. Detaliile teoretice ale algoritmului (schema de codare delta-of-delta, XOR encoding, reprezentarea în complement față de 2) au fost prezentate în Capitolul~\ref{chap:gorilla}. Aici ne concentrăm pe structurile de date, relațiile dintre componente și pe o variantă îmbunătățită a algoritmului original.
 
-\section{Structura proiectului}
+\section{Arhitectura sistemului}
 
-Proiectul este organizat în mai multe module cu responsabilități distincte:
+\subsection{Diagrama dependențelor}
 
-\begin{verbatim}
-PROIECT_PROCESAREA_SEMNALELOR/
-|-- BitWriter.py              # Scriere la nivel de bit
-|-- BitReader.py              # Citire la nivel de bit
-|-- timestamp_compression.py  # Delta-of-delta encoding
-|-- value_compression.py      # XOR encoding
-|-- storage_minimal.py        # Stocare serii univariate
-|-- multivariate_storage.py   # Stocare serii multivariate
-|-- run.py                    # Script demonstrativ
-+-- timeseries/               # Date de test
-    |-- data_cpu.csv
-    +-- room_climate_location_A.csv
-\end{verbatim}
-
-Diagrama dependențelor este prezentată în Figura~\ref{fig:module-deps}.
+Sistemul este organizat pe trei niveluri ierarhice, prezentate în Figura~\ref{fig:class-deps}. La bază se află operațiile pe biți, urmate de encoderele și decoderele specializate, iar la vârf se află modulele de stocare.
 
 \begin{figure}[h]
 \centering
 \begin{tikzpicture}[
-    module/.style={draw, rectangle, rounded corners, minimum width=3cm, minimum height=0.8cm, align=center, fill=blue!10},
+    module/.style={draw, rectangle, rounded corners, minimum width=2.8cm, minimum height=0.8cm, align=center, fill=blue!10, font=\small},
     arrow/.style={->, thick, >=stealth}
 ]
-    % BitWriter and BitReader at the bottom
+    % Nivelul 1: Operații pe biți (jos)
     \node[module] (bw) at (0,0) {BitWriter};
-    \node[module] (br) at (4,0) {BitReader};
+    \node[module] (br) at (5,0) {BitReader};
 
-    % Compression modules
-    \node[module] (ts) at (0,1.5) {timestamp\_compression};
-    \node[module] (val) at (4,1.5) {value\_compression};
+    % Nivelul 2: Encodere/Decodere
+    \node[module] (tse) at (-1.5,2) {TimestampEncoder};
+    \node[module] (ve) at (1.5,2) {ValueEncoder};
+    \node[module] (tsd) at (5,2) {TimestampDecoder};
+    \node[module] (vd) at (8,2) {ValueDecoder};
 
-    % Storage modules
-    \node[module] (storage) at (0,3) {storage\_minimal};
-    \node[module] (multi) at (4,3) {multivariate\_storage};
+    % Nivelul 3: Stocare
+    \node[module] (mvb) at (0,4) {MultiVariateBlock};
+    \node[module] (mvd) at (6.5,4) {MultiVariateDecoder};
 
-    % Dependencies
-    \draw[arrow] (ts) -- (bw);
-    \draw[arrow] (ts) -- (br);
-    \draw[arrow] (val) -- (bw);
-    \draw[arrow] (val) -- (br);
-    \draw[arrow] (storage) -- (ts);
-    \draw[arrow] (storage) -- (val);
-    \draw[arrow] (multi) -- (ts);
-    \draw[arrow] (multi) -- (val);
+    % Nivelul 4
+    \node[module] (mvs) at (3.25,5.5) {MultiVariateSeries};
+
+    % Nivelul 5
+    \node[module] (store) at (3.25,7) {MultiVariateStore};
+
+    % Dependențe Nivel 2 -> Nivel 1
+    \draw[arrow] (tse) -- (bw);
+    \draw[arrow] (ve) -- (bw);
+    \draw[arrow] (tsd) -- (br);
+    \draw[arrow] (vd) -- (br);
+
+    % Dependențe Nivel 3 -> Nivel 2
+    \draw[arrow] (mvb) -- (tse);
+    \draw[arrow] (mvb) -- (ve);
+    \draw[arrow] (mvd) -- (tsd);
+    \draw[arrow] (mvd) -- (vd);
+
+    % Dependențe între module stocare
+    \draw[arrow] (mvs) -- (mvb);
+    \draw[arrow] (mvs) -- (mvd);
+    \draw[arrow] (store) -- (mvs);
+
+    % Etichete niveluri
+    \node[gray, anchor=east] at (-3,0) {\footnotesize Nivel 1: Biți};
+    \node[gray, anchor=east] at (-3,2) {\footnotesize Nivel 2: Codare};
+    \node[gray, anchor=east] at (-3,4.75) {\footnotesize Nivel 3: Stocare};
 \end{tikzpicture}
-\caption{Diagrama dependențelor între module}
-\label{fig:module-deps}
+\caption{Ierarhia dependențelor dintre clase}
+\label{fig:class-deps}
 \end{figure}
 
-\section{Operații pe biți: BitWriter și BitReader}
+\subsection{Principii de design}
 
-\subsection{Provocarea}
-
-Python nu oferă acces direct la nivel de bit. Tipul de date fundamental este \texttt{byte} (8 biți). Pentru a implementa compresia Gorilla, avem nevoie să:
+Toate clasele utilizează directiva \texttt{\_\_slots\_\_} pentru optimizare. Aceasta elimină dicționarul implicit al obiectelor Python (\texttt{\_\_dict\_\_}), rezultând în:
 \begin{itemize}
-    \item Scriem secvențe de biți de lungime arbitrară (1, 5, 7, 12 biți etc.);
-    \item Citim aceleași secvențe înapoi;
-    \item Gestionăm eficient alinierea la granițe de byte.
+    \item Reducerea amprentei de memorie per obiect
+    \item Acces mai rapid la atribute (fără lookup în dicționar)
+    \item Protecție la erori de tip (atributele nedeclarate generează excepții)
 \end{itemize}
+
+\section{Nivelul 1: Operații pe biți}
 
 \subsection{Clasa BitWriter}
 
-\texttt{BitWriter} gestionează scrierea bit-cu-bit într-un buffer de bytes:
+\textbf{Rol}: Permite scrierea de secvențe de biți de lungime arbitrară într-un buffer de bytes. Algoritmul Gorilla necesită scrierea de câmpuri de 1, 5, 7, 9, 12 sau 32 de biți care nu se aliniază la granița de byte.
 
-\begin{lstlisting}[caption={Structura clasei BitWriter}, label={lst:bitwriter}]
-class BitWriter:
-    __slots__ = ("_buf", "_cur", "_nbits")
+\textbf{Structura de date internă}:
+\begin{center}
+\begin{tabular}{|l|l|p{7cm}|}
+\hline
+\textbf{Atribut} & \textbf{Tip} & \textbf{Descriere} \\
+\hline
+\texttt{\_buf} & \texttt{bytearray} & Buffer cu bytes compleți (finalizați) \\
+\texttt{\_cur} & \texttt{int} & Byte parțial în construcție (0--255) \\
+\texttt{\_nbits} & \texttt{int} & Numărul de biți scriși în \texttt{\_cur} (0--7) \\
+\hline
+\end{tabular}
+\end{center}
 
-    def __init__(self):
-        self._buf = bytearray()  # Bytes completi
-        self._cur = 0            # Byte partial in lucru
-        self._nbits = 0          # Biti scrisi in _cur (0-7)
-\end{lstlisting}
+\textbf{Modelul de acumulare}: Biții se scriu de la stânga la dreapta (MSB-first). Când \texttt{\_nbits} atinge 8, byte-ul complet este mutat în buffer și se resetează \texttt{\_cur}.
 
-Atributul \texttt{\_\_slots\_\_} este utilizat pentru eficiență: elimină dicționarul implicit al obiectului, reducând consumul de memorie și accelerând accesul la atribute.
-
-\subsubsection{Metoda write\_bit}
-
-Scrierea unui singur bit:
-
-\begin{lstlisting}[caption={Metoda write\_bit}, label={lst:writebit}]
-def write_bit(self, bit: int) -> None:
-    # Shiftam bitii existenti si adaugam noul bit
-    self._cur = (self._cur << 1) | (bit & 1)
-    self._nbits += 1
-
-    if self._nbits == 8:
-        # Byte complet: il mutam in buffer
-        self._buf.append(self._cur & 0xFF)
-        self._cur = 0
-        self._nbits = 0
-\end{lstlisting}
-
-Biții sunt scriși în ordine \textbf{MSB-first} (Most Significant Bit first): bitul cel mai semnificativ este scris primul.
-
-\subsubsection{Metoda write\_bits}
-
-Scrierea unei secvențe de $n$ biți:
-
-\begin{lstlisting}[caption={Metoda write\_bits}, label={lst:writebits}]
-def write_bits(self, x: int, n: int) -> None:
-    if n == 0:
-        return
-    if x.bit_length() > n:
-        x = x & ((1 << n) - 1)  # Pastram doar n biti
-
-    for i in range(n - 1, -1, -1):
-        bit = (x >> i) & 1
-        self._cur = (self._cur << 1) | bit
-        self._nbits += 1
-        if self._nbits == 8:
-            self._buf.append(self._cur & 0xFF)
-            self._cur = 0
-            self._nbits = 0
-\end{lstlisting}
-
-\subsubsection{Reprezentarea în complement față de 2}
-
-Pentru numere cu semn, utilizăm funcția de conversie:
-
-\begin{lstlisting}[caption={Conversie la complement fata de 2}, label={lst:twos}]
-def to_twos_complement(x: int, num_bits: int) -> int:
-    minv = -(1 << (num_bits - 1))  # -2^(n-1)
-    maxv = (1 << (num_bits - 1)) - 1  # 2^(n-1) - 1
-
-    if x < minv or x > maxv:
-        raise ValueError(f"{x} nu incape pe {num_bits} biti")
-
-    if x < 0:
-        x = (1 << num_bits) + x  # 2^n + x
-
-    return x
-\end{lstlisting}
+\begin{center}
+\begin{tabular}{|l|p{8cm}|}
+\hline
+\textbf{Metodă} & \textbf{Descriere} \\
+\hline
+\texttt{write\_bit(bit)} & Scrie un singur bit (0 sau 1) \\
+\texttt{write\_bits(x, n)} & Scrie $n$ biți din valoarea $x$ \\
+\texttt{write\_signed(x, bits)} & Scrie $x$ ca număr cu semn (complement față de 2) \\
+\texttt{write\_u64(x)} / \texttt{write\_i64(x)} & Scrie întreg pe 64 biți (aliniat la byte) \\
+\texttt{to\_bytes()} & Finalizează și returnează \texttt{bytes} \\
+\hline
+\end{tabular}
+\end{center}
 
 \subsection{Clasa BitReader}
 
-\texttt{BitReader} este complementara lui \texttt{BitWriter}:
+\textbf{Rol}: Clasă complementară pentru citirea bit cu bit dintr-un flux de bytes. Reconstruiește valorile scrise cu BitWriter.
 
-\begin{lstlisting}[caption={Structura clasei BitReader}, label={lst:bitreader}]
-class BitReader:
-    __slots__ = ("_data", "_byte_pos", "_bit_pos")
+\textbf{Structura de date internă}:
+\begin{center}
+\begin{tabular}{|l|l|p{7cm}|}
+\hline
+\textbf{Atribut} & \textbf{Tip} & \textbf{Descriere} \\
+\hline
+\texttt{\_data} & \texttt{bytes} & Sursa de date (imutabilă) \\
+\texttt{\_byte\_pos} & \texttt{int} & Indexul byte-ului curent \\
+\texttt{\_bit\_pos} & \texttt{int} & Poziția bitului în byte (0--7) \\
+\hline
+\end{tabular}
+\end{center}
 
-    def __init__(self, data: bytes):
-        self._data = data      # Sursa de date
-        self._byte_pos = 0     # Indexul byte-ului curent
-        self._bit_pos = 0      # Pozitia in byte (0-7)
-\end{lstlisting}
+\begin{center}
+\begin{tabular}{|l|p{8cm}|}
+\hline
+\textbf{Metodă} & \textbf{Descriere} \\
+\hline
+\texttt{read\_bit()} & Citește un singur bit \\
+\texttt{read\_bits(n)} & Citește $n$ biți ca întreg unsigned \\
+\texttt{read\_signed(bits)} & Citește număr cu semn (complement față de 2) \\
+\texttt{read\_u64()} / \texttt{read\_i64()} & Citește întreg pe 64 biți \\
+\texttt{bits\_remaining} & Proprietate: biți rămași în flux \\
+\hline
+\end{tabular}
+\end{center}
 
-\subsubsection{Metoda read\_bit}
+\section{Nivelul 2: Encodere și decodere}
 
-\begin{lstlisting}[caption={Metoda read\_bit}, label={lst:readbit}]
-def read_bit(self) -> int:
-    if self._byte_pos >= len(self._data):
-        raise EOFError("End of stream")
-
-    # Extragem bitul de la pozitia curenta (MSB first)
-    bit = (self._data[self._byte_pos] >> (7 - self._bit_pos)) & 1
-
-    self._bit_pos += 1
-    if self._bit_pos == 8:
-        self._bit_pos = 0
-        self._byte_pos += 1
-
-    return bit
-\end{lstlisting}
-
-\section{Compresia timestamp-urilor}
+Schema de codare delta-of-delta pentru timestamp-uri și XOR encoding pentru valori au fost detaliate în Capitolul 3. Acum prezentăm structura internă a claselor care implementează aceste scheme.
 
 \subsection{Clasa TimestampEncoder}
 
-Encoder-ul menține starea necesară pentru calculul delta-of-delta:
+\textbf{Rol}: Comprimă timestamp-uri folosind codarea delta-of-delta.
 
-\begin{lstlisting}[caption={Structura TimestampEncoder}, label={lst:tsenc}]
-class TimestampEncoder:
-    __slots__ = ("_writer", "_prev_timestamp",
-                 "_prev_delta", "_count")
+\begin{center}
+\begin{tabular}{|l|p{9cm}|}
+\hline
+\textbf{Atribut} & \textbf{Semnificație} \\
+\hline
+\texttt{\_writer} & Referință la BitWriter pentru scriere \\
+\texttt{\_prev\_timestamp} & Ultimul timestamp procesat ($t_{i-1}$) \\
+\texttt{\_prev\_delta} & Ultimul delta calculat ($\delta_{i-1}$) \\
+\texttt{\_count} & Numărul de timestamp-uri adăugate \\
+\hline
+\end{tabular}
+\end{center}
 
-    def __init__(self, writer: BitWriter):
-        self._writer = writer
-        self._prev_timestamp = None
-        self._prev_delta = None
-        self._count = 0
-\end{lstlisting}
+\textbf{Logica de codare}:
+\begin{itemize}
+    \item Primul timestamp: se scrie complet pe 64 de biți
+    \item Al doilea timestamp: se scrie $\delta_1 = t_1 - t_0$ pe 64 de biți
+    \item Timestamp-urile următoare: se codează delta-of-delta conform schemei din Tabelul~\ref{tab:dod-encoding}
+\end{itemize}
 
-\subsubsection{Metoda add\_timestamp}
+\subsection{Clasa TimestampDecoder}
 
-\begin{lstlisting}[caption={Adaugarea unui timestamp}, label={lst:addts}]
-def add_timestamp(self, timestamp: int) -> None:
-    if self._count == 0:
-        # Primul timestamp: scriem complet (64 biti)
-        self._writer.write_i64(timestamp)
-        self._prev_timestamp = timestamp
-        self._count = 1
-        return
+\textbf{Rol}: Reconstruiește timestamp-urile din fluxul comprimat. Inversează operațiile TimestampEncoder.
 
-    delta = timestamp - self._prev_timestamp
-
-    if self._count == 1:
-        # Al doilea: scriem delta complet
-        self._writer.write_i64(delta)
-        self._prev_delta = delta
-        self._count = 2
-        return
-
-    # De la al treilea: delta-of-delta
-    dod = delta - self._prev_delta
-    self._encode_delta_of_delta(dod)
-
-    self._prev_timestamp = timestamp
-    self._prev_delta = delta
-    self._count += 1
-\end{lstlisting}
-
-\subsubsection{Codarea delta-of-delta}
-
-\begin{lstlisting}[caption={Codarea delta-of-delta}, label={lst:encodedod}]
-def _encode_delta_of_delta(self, dod: int) -> None:
-    if dod == 0:
-        self._writer.write_bit(0)
-
-    elif -64 <= dod <= 63:
-        self._writer.write_bit(1)
-        self._writer.write_bit(0)
-        self._writer.write_signed(dod, 7)
-
-    elif -256 <= dod <= 255:
-        self._writer.write_bits(0b110, 3)
-        self._writer.write_signed(dod, 9)
-
-    elif -2048 <= dod <= 2047:
-        self._writer.write_bits(0b1110, 4)
-        self._writer.write_signed(dod, 12)
-
-    else:
-        self._writer.write_bits(0b1111, 4)
-        self._writer.write_signed(dod, 32)
-\end{lstlisting}
-
-\section{Compresia valorilor}
-
-\subsection{Conversia float $\leftrightarrow$ biți}
-
-Pentru a aplica XOR, convertim valorile \texttt{float64} în reprezentarea lor pe 64 de biți folosind modulul \texttt{struct}:
-
-\begin{lstlisting}[caption={Conversie float-biti}, label={lst:floatbits}]
-import struct
-
-def float_to_bits(val: float) -> int:
-    # Pack ca double big-endian, unpack ca uint64
-    return struct.unpack(">Q", struct.pack(">d", val))[0]
-
-def bits_to_float(bits: int) -> float:
-    return struct.unpack(">d", struct.pack(">Q", bits))[0]
-\end{lstlisting}
+\textbf{Starea internă}: Identică cu TimestampEncoder, dar folosește BitReader în loc de BitWriter.
 
 \subsection{Clasa ValueEncoder}
 
-\begin{lstlisting}[caption={Structura ValueEncoder}, label={lst:valenc}]
-class ValueEncoder:
-    __slots__ = ("_writer", "_prev_value_bits",
-                 "_prev_leading", "_prev_trailing", "_count")
+\textbf{Rol}: Comprimă valori \texttt{float64} folosind codarea XOR.
 
-    def __init__(self, writer: BitWriter):
-        self._writer = writer
-        self._prev_value_bits = 0
-        self._prev_leading = 255   # Sentinel
-        self._prev_trailing = 255
-        self._count = 0
-\end{lstlisting}
+\begin{center}
+\begin{tabular}{|l|p{8cm}|}
+\hline
+\textbf{Atribut} & \textbf{Semnificație} \\
+\hline
+\texttt{\_writer} & Referință la BitWriter \\
+\texttt{\_prev\_value\_bits} & Reprezentarea pe biți a valorii anterioare \\
+\texttt{\_prev\_leading} & Numărul de zerouri din față (fereastra anterioară) \\
+\texttt{\_prev\_trailing} & Numărul de zerouri din coadă (fereastra anterioară) \\
+\texttt{\_count} & Numărul de valori procesate \\
+\hline
+\end{tabular}
+\end{center}
 
-\subsubsection{Metoda add\_value}
 
-\begin{lstlisting}[caption={Adaugarea unei valori}, label={lst:addval}]
-def add_value(self, val: float) -> None:
-    v_bits = self._float_to_bits(val)
+\subsection{Clasa ValueDecoder}
 
-    if self._count == 0:
-        self._writer.write_u64(v_bits)
-        self._prev_value_bits = v_bits
-        self._count = 1
-        return
+\textbf{Rol}: Reconstruiește valorile float din fluxul comprimat XOR.
 
-    xor = v_bits ^ self._prev_value_bits
-
-    if xor == 0:
-        self._writer.write_bit(0)
-    else:
-        self._writer.write_bit(1)
-        self._encode_xor(xor)
-
-    self._prev_value_bits = v_bits
-    self._count += 1
-\end{lstlisting}
-
-\subsubsection{Calculul leading/trailing zeros}
-
-\begin{lstlisting}[caption={Calculul zeros}, label={lst:zeros}]
-def _encode_xor(self, xor: int) -> None:
-    bin_xor = bin(xor)[2:].zfill(64)
-    leading = len(bin_xor) - len(bin_xor.lstrip('0'))
-    trailing = len(bin_xor) - len(bin_xor.rstrip('0'))
-
-    if leading > 31:
-        leading = 31  # Limitam la 5 biti
-
-    meaningful_bits = 64 - leading - trailing
-\end{lstlisting}
-
-\subsubsection{Decizia de refolosire a ferestrei}
-
-\begin{lstlisting}[caption={Codarea XOR cu decizie fereastra}, label={lst:xorenc}]
-    if (self._prev_leading != 255 and
-        leading >= self._prev_leading and
-        trailing >= self._prev_trailing):
-        # Refolosim fereastra anterioara
-        self._writer.write_bit(0)
-        m = 64 - self._prev_leading - self._prev_trailing
-        self._writer.write_bits(xor >> self._prev_trailing, m)
-    else:
-        # Fereastra noua
-        self._writer.write_bit(1)
-        self._writer.write_bits(leading, 5)
-        self._writer.write_bits(meaningful_bits - 1, 6)
-        self._writer.write_bits(xor >> trailing, meaningful_bits)
-
-        self._prev_leading = leading
-        self._prev_trailing = trailing
-\end{lstlisting}
-
-\textbf{Notă importantă}: Stocăm \texttt{meaningful\_bits - 1} pe 6 biți. Aceasta permite reprezentarea valorilor 1-64 ca 0-63, deoarece când XOR $\neq 0$, există cel puțin un bit semnificativ.
-
-\section{Stocare pentru serii multivariate}
+\section{Nivelul 3: Stocare multivariată}
 
 \subsection{Clasa MultiVariateBlock}
 
-Un bloc multivariat gestionează mai multe variabile cu același stream de timestamp-uri:
+\textbf{Rol}: Gestionează un bloc de date pentru serii cu multiple variabile. Toate variabilele împart același stream de timestamp-uri, evitând duplicarea.
 
-\begin{lstlisting}[caption={Structura MultiVariateBlock}, label={lst:mvblock}]
-class MultiVariateBlock:
-    def __init__(self, variable_names: List[str]):
-        self._var_names = list(variable_names)
-        self._writer = BitWriter()
-        self._ts_encoder = TimestampEncoder(self._writer)
+\textbf{Structura de date}:
+\begin{center}
+\begin{tabular}{|l|p{8cm}|}
+\hline
+\textbf{Atribut} & \textbf{Descriere} \\
+\hline
+\texttt{\_writer} & BitWriter comun pentru toate stream-urile \\
+\texttt{\_ts\_encoder} & Un singur TimestampEncoder \\
+\texttt{\_val\_encoders} & Dicționar: nume variabilă $\rightarrow$ ValueEncoder \\
+\texttt{\_var\_names} & Lista ordonată a numelor variabilelor \\
+\texttt{\_count} & Numărul de puncte din bloc \\
+\texttt{\_closed} & Flag: blocul este finalizat \\
+\texttt{\_start\_timestamp} & Timestamp-ul de start al blocului \\
+\hline
+\end{tabular}
+\end{center}
 
-        # Un ValueEncoder pentru fiecare variabila
-        self._val_encoders = {
-            name: ValueEncoder(self._writer)
-            for name in self._var_names
-        }
-        self._count = 0
+\textbf{Principiul cheie}: Un singur timestamp pentru $N$ variabile. Ordinea variabilelor trebuie să fie \textbf{deterministă} la codare și decodare.
+
+\begin{center}
+\begin{tabular}{|l|p{8cm}|}
+\hline
+\textbf{Metodă} & \textbf{Descriere} \\
+\hline
+\texttt{add(ts, values)} & Adaugă punct (algoritmul Gorilla standard) \\
+\texttt{add\_verification(ts, values)} & Adaugă punct (varianta îmbunătățită) \\
+\texttt{seal()} & Finalizează blocul, returnează bytes comprimați \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Clasa MultiVariateDecoder}
+
+\textbf{Rol}: Citește și reconstruiește punctele multivariate dintr-un bloc comprimat.
+
+\textbf{Structură}: Un TimestampDecoder + un dicționar de ValueDecodere (unul per variabilă).
+
+\subsection{Clasa MultiVariateSeries}
+
+\textbf{Rol}: Gestionează o serie temporală completă, organizată în blocuri de durată fixă (implicit 2 ore).
+
+\textbf{Structura de date}:
+\begin{center}
+\begin{tabular}{|l|p{8cm}|}
+\hline
+\textbf{Atribut} & \textbf{Descriere} \\
+\hline
+\texttt{\_var\_names} & Lista numelor variabilelor \\
+\texttt{\_block\_duration} & Durata unui bloc în milisecunde \\
+\texttt{\_open\_block} & Blocul curent (în care se scrie) \\
+\texttt{\_closed\_blocks} & Listă: (start\_ts, count, bytes) \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Interfață}:
+\begin{center}
+\begin{tabular}{|l|p{8cm}|}
+\hline
+\textbf{Metodă} & \textbf{Descriere} \\
+\hline
+\texttt{insert(ts, values)} & Inserează punct (gestionează blocuri automat) \\
+\texttt{flush()} & Închide blocul curent \\
+\texttt{query(t\_start, t\_end)} & Interogare pe interval temporal \\
+\texttt{get\_compression\_stats()} & Returnează statistici de compresie \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Clasa MultiVariateStore}
+
+\textbf{Rol}: Container pentru mai multe serii temporale multivariate, identificate prin chei unice.
+
+\textbf{Structură}: Dicționar \texttt{serie\_key} $\rightarrow$ \texttt{MultiVariateSeries}.
+
+\section{Varianta îmbunătățită: Optimizarea ferestrei XOR}
+
+În această secțiune prezentăm o modificare a algoritmului Gorilla original, implementată în metodele \texttt{add\_value\_verification} și \texttt{add\_verification}.
+
+\subsection{Problema algoritmului original}
+
+În algoritmul Gorilla standard, decizia de a refolosi fereastra anterioară se bazează exclusiv pe condiția:
+\begin{equation}
+    L_{curent} \geq L_{anterior} \quad \text{și} \quad T_{curent} \geq T_{anterior}
+\end{equation}
+
+unde $L$ = leading zeros și $T$ = trailing zeros.
+
+\textbf{Problema}: Această condiție poate duce la ineficiențe. Dacă fereastra anterioară are $M_{anterior} = 64 - L_{anterior} - T_{anterior}$ biți semnificativi, iar valoarea curentă ar necesita doar $M_{curent} = 64 - L_{curent} - T_{curent}$ biți, algoritmul original va scrie $M_{anterior}$ biți chiar dacă $M_{curent} \ll M_{anterior}$.
+
+\begin{example}
+Fie fereastra anterioară cu $L_{ant} = 10$, $T_{ant} = 20$, deci $M_{ant} = 34$ biți.
+
+Valoarea curentă are $L_{cur} = 15$, $T_{cur} = 40$, deci $M_{cur} = 9$ biți.
+
+Condiția originală ($15 \geq 10$ și $40 \geq 20$) este satisfăcută, deci algoritmul va refolosi fereastra și va scrie 34 de biți în loc de 9.
+
+\textbf{Costul refolosirii}: 2 (prefix \texttt{10}) + 34 (biți) = 36 biți
+
+\textbf{Costul ferestrei noi}: 2 (prefix \texttt{11}) + 5 (leading) + 6 (lungime) + 9 (biți) = 22 biți
+
+Diferența: 14 biți irosiți per valoare!
+\end{example}
+
+\subsection{Soluția propusă}
+
+Varianta îmbunătățită adaugă o condiție suplimentară: se verifică dacă fereastra anterioară este \textbf{semnificativ} mai mare decât fereastra curentă. Crearea unei ferestre noi costă exact 11 biți (5 pentru leading zeros + 6 pentru lungime). Prin urmare, merită să creăm o fereastră nouă doar dacă economia de biți depășește acest overhead:
+
+\begin{equation}
+    M_{anterior} - M_{curent} > 11
+\end{equation}
+
+\textbf{Condiția completă pentru refolosirea ferestrei}:
+\begin{equation}
+    L_{cur} \geq L_{ant} \quad \land \quad T_{cur} \geq T_{ant} \quad \land \quad (M_{ant} - M_{cur} \leq 11)
+\end{equation}
+
+\subsection{Implementarea}
+
+În fișierul \texttt{value\_compression.py}, metoda \texttt{add\_value\_verification} implementează această logică:
+
+\begin{lstlisting}[language=Python, caption={Condiția îmbunătățită pentru refolosirea ferestrei}]
+# Varianta standard (add_value)
+if (self._prev_leading != 255 and
+    leading >= self._prev_leading and
+    trailing >= self._prev_trailing):
+    # Refolosim fereastra
+
+# Varianta imbunatatita (add_value_verification)
+if (self._prev_leading != 255 and
+    leading >= self._prev_leading and
+    trailing >= self._prev_trailing and
+    not ((64 - self._prev_trailing - self._prev_leading)
+         - (64 - trailing - leading) > 11)):
+    # Refolosim fereastra doar daca diferenta <= 11 biti
 \end{lstlisting}
 
-\subsection{Adăugarea unui punct multivariat}
+Condiția \texttt{not (M\_ant - M\_cur > 11)} se traduce în: ``refolosește fereastra doar dacă economia potențială nu depășește overhead-ul de 11 biți''.
 
-\begin{lstlisting}[caption={Adaugarea unui punct multivariat}, label={lst:addmv}]
-def add(self, timestamp: int, values: Dict[str, float]):
-    # 1. Encodam timestamp-ul O SINGURA DATA
-    self._ts_encoder.add_timestamp(timestamp)
+\subsection{Analiza trade-off-ului}
 
-    # 2. Encodam fiecare valoare in encoder-ul dedicat
-    # IMPORTANT: ordinea trebuie sa fie constanta!
-    for name in self._var_names:
-        self._val_encoders[name].add_value(values[name])
+Decizia optimă se bazează pe compararea costurilor:
 
-    self._count += 1
-\end{lstlisting}
+\begin{center}
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Opțiune} & \textbf{Cost (biți)} \\
+\hline
+Refolosire fereastră & $2 + M_{anterior}$ \\
+Fereastră nouă & $2 + 11 + M_{curent}$ \\
+\hline
+\end{tabular}
+\end{center}
 
-Ordinea deterministă a variabilelor este esențială: la decodare trebuie să citim valorile în aceeași ordine în care au fost scrise.
+Fereastra nouă este mai eficientă când:
+\begin{equation}
+    2 + 11 + M_{curent} < 2 + M_{anterior} \implies M_{anterior} - M_{curent} > 11
+\end{equation}
 
-\section{Organizarea în blocuri}
+Această condiție este \textbf{matematic optimă}: se creează fereastră nouă exact atunci când este benefic.
 
-Seriile temporale sunt organizate în blocuri de durată fixă (implicit 2 ore = 7.200.000 ms):
+\section{Fluxul de date}
 
-\begin{lstlisting}[caption={Gestionarea blocurilor}, label={lst:blocks}]
-class MultiVariateSeries:
-    def insert(self, timestamp: int, values: Dict[str, float]):
-        if self._open_block is None:
-            self._create_new_block(timestamp)
-        elif timestamp >= self._open_block.start + self._duration:
-            self._close_current_block()
-            self._create_new_block(timestamp)
+\subsection{Codare (compresie)}
 
-        self._open_block.add(timestamp, values)
+\begin{enumerate}
+    \item Aplicația apelează \texttt{MultiVariateSeries.insert(ts, values)}
+    \item Seria verifică dacă e nevoie de bloc nou și apelează \texttt{MultiVariateBlock.add()}
+    \item Blocul apelează \texttt{TimestampEncoder.add\_timestamp(ts)}
+    \item Encoder-ul timestamp calculează delta-of-delta și scrie în BitWriter
+    \item Pentru fiecare variabilă, blocul apelează \texttt{ValueEncoder.add\_value(v)}
+    \item Fiecare ValueEncoder calculează XOR și scrie în același BitWriter
+    \item La \texttt{flush()}, BitWriter returnează bytes-ii comprimați
+\end{enumerate}
 
-    def _create_new_block(self, timestamp: int):
-        # Aliniem la granita de bloc
-        aligned = (timestamp // self._duration) * self._duration
-        self._open_block = MultiVariateBlock(self._var_names)
-\end{lstlisting}
+\subsection{Decodare (decompresie)}
 
-Alinierea la granița blocului asigură că blocurile consecutive au timestamp-uri de start predictibile, facilitând căutarea în date.
-
-\section{Considerații de performanță}
-
-\subsection{Utilizarea \_\_slots\_\_}
-
-Toate clasele utilizează \texttt{\_\_slots\_\_} pentru:
-\begin{itemize}
-    \item Reducerea consumului de memorie (fără \texttt{\_\_dict\_\_});
-    \item Acces mai rapid la atribute;
-    \item Protecție contra erorilor de tip (atribute nedeclarate).
-\end{itemize}
-
-\subsection{Evitarea alocărilor în bucla principală}
-
-Metodele de codare evită crearea de obiecte noi în buclele frecvente. Valorile intermediare sunt stocate în variabile de instanță pre-alocate.
-
-\subsection{Buffer pre-alocat}
-
-\texttt{BitWriter} poate primi o capacitate inițială pentru a evita realocări frecvente:
-
-\begin{lstlisting}
-def __init__(self, initial_capacity: int = 0):
-    self._buf = bytearray()
-    if initial_capacity > 0:
-        self._buf.extend(b"\x00" * initial_capacity)
-        del self._buf[:]  # Golim, dar pastram capacitatea
-\end{lstlisting}
+\begin{enumerate}
+    \item Se creează \texttt{MultiVariateDecoder} cu bytes comprimați
+    \item Decoder-ul inițializează BitReader + TimestampDecoder + ValueDecoders
+    \item La fiecare \texttt{read\_point()}:
+    \begin{itemize}
+        \item TimestampDecoder citește și reconstruiește timestamp-ul
+        \item Fiecare ValueDecoder citește și reconstruiește valoarea sa
+    \end{itemize}
+    \item Se returnează tuplu (timestamp, dicționar\_valori)
+\end{enumerate}

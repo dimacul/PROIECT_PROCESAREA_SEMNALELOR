@@ -1,1 +1,37 @@
-{"points": 480, "size": 3486}
+{
+  "series_name": "CPU Load Average",
+  "variable_names": [
+    "cpu_load"
+  ],
+  "total_points": 480,
+  "num_blocks": 5,
+  "block_duration_ms": 7200000,
+  "compressed_bytes": 3486,
+  "blocks": [
+    {
+      "start_timestamp": 1485532800000,
+      "count": 78,
+      "size_bytes": 450
+    },
+    {
+      "start_timestamp": 1485540000000,
+      "count": 120,
+      "size_bytes": 960
+    },
+    {
+      "start_timestamp": 1485547200000,
+      "count": 120,
+      "size_bytes": 913
+    },
+    {
+      "start_timestamp": 1485554400000,
+      "count": 120,
+      "size_bytes": 867
+    },
+    {
+      "start_timestamp": 1485561600000,
+      "count": 42,
+      "size_bytes": 296
+    }
+  ]
+}

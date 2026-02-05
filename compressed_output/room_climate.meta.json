@@ -1,5 +1,6 @@
 {
-  "variables": [
+  "series_name": "Room Climate",
+  "variable_names": [
     "temp",
     "humidity",
     "light1",
@@ -9,6 +10,255 @@
     "door",
     "window"
   ],
-  "points": 68229,
-  "size": 1190180
+  "total_points": 68229,
+  "num_blocks": 49,
+  "block_duration_ms": 7200000,
+  "compressed_bytes": 1190180,
+  "blocks": [
+    {
+      "start_timestamp": 1458028800000,
+      "count": 1089,
+      "size_bytes": 18878
+    },
+    {
+      "start_timestamp": 1458036000000,
+      "count": 1791,
+      "size_bytes": 29177
+    },
+    {
+      "start_timestamp": 1458043200000,
+      "count": 1019,
+      "size_bytes": 16902
+    },
+    {
+      "start_timestamp": 1458050400000,
+      "count": 1140,
+      "size_bytes": 18998
+    },
+    {
+      "start_timestamp": 1458057600000,
+      "count": 552,
+      "size_bytes": 9297
+    },
+    {
+      "start_timestamp": 1458115200000,
+      "count": 1174,
+      "size_bytes": 19886
+    },
+    {
+      "start_timestamp": 1458122400000,
+      "count": 1793,
+      "size_bytes": 35450
+    },
+    {
+      "start_timestamp": 1458129600000,
+      "count": 1081,
+      "size_bytes": 19856
+    },
+    {
+      "start_timestamp": 1458136800000,
+      "count": 1399,
+      "size_bytes": 25387
+    },
+    {
+      "start_timestamp": 1458144000000,
+      "count": 574,
+      "size_bytes": 10017
+    },
+    {
+      "start_timestamp": 1458208800000,
+      "count": 544,
+      "size_bytes": 8433
+    },
+    {
+      "start_timestamp": 1458216000000,
+      "count": 1759,
+      "size_bytes": 28380
+    },
+    {
+      "start_timestamp": 1458223200000,
+      "count": 922,
+      "size_bytes": 13850
+    },
+    {
+      "start_timestamp": 1458288000000,
+      "count": 891,
+      "size_bytes": 14275
+    },
+    {
+      "start_timestamp": 1458295200000,
+      "count": 1800,
+      "size_bytes": 29255
+    },
+    {
+      "start_timestamp": 1458302400000,
+      "count": 1400,
+      "size_bytes": 24060
+    },
+    {
+      "start_timestamp": 1458547200000,
+      "count": 1065,
+      "size_bytes": 18153
+    },
+    {
+      "start_timestamp": 1458554400000,
+      "count": 1770,
+      "size_bytes": 28666
+    },
+    {
+      "start_timestamp": 1458561600000,
+      "count": 1085,
+      "size_bytes": 18770
+    },
+    {
+      "start_timestamp": 1458568800000,
+      "count": 1035,
+      "size_bytes": 16885
+    },
+    {
+      "start_timestamp": 1458576000000,
+      "count": 487,
+      "size_bytes": 7777
+    },
+    {
+      "start_timestamp": 1458633600000,
+      "count": 1161,
+      "size_bytes": 20391
+    },
+    {
+      "start_timestamp": 1458640800000,
+      "count": 1468,
+      "size_bytes": 25446
+    },
+    {
+      "start_timestamp": 1458648000000,
+      "count": 1447,
+      "size_bytes": 23244
+    },
+    {
+      "start_timestamp": 1458655200000,
+      "count": 1255,
+      "size_bytes": 20318
+    },
+    {
+      "start_timestamp": 1458662400000,
+      "count": 434,
+      "size_bytes": 6894
+    },
+    {
+      "start_timestamp": 1458720000000,
+      "count": 848,
+      "size_bytes": 13146
+    },
+    {
+      "start_timestamp": 1458727200000,
+      "count": 1794,
+      "size_bytes": 32112
+    },
+    {
+      "start_timestamp": 1458734400000,
+      "count": 1142,
+      "size_bytes": 18501
+    },
+    {
+      "start_timestamp": 1458741600000,
+      "count": 1214,
+      "size_bytes": 20656
+    },
+    {
+      "start_timestamp": 1458748800000,
+      "count": 408,
+      "size_bytes": 6896
+    },
+    {
+      "start_timestamp": 1458813600000,
+      "count": 538,
+      "size_bytes": 9351
+    },
+    {
+      "start_timestamp": 1458820800000,
+      "count": 1002,
+      "size_bytes": 17730
+    },
+    {
+      "start_timestamp": 1458828000000,
+      "count": 1302,
+      "size_bytes": 22499
+    },
+    {
+      "start_timestamp": 1458835200000,
+      "count": 298,
+      "size_bytes": 4883
+    },
+    {
+      "start_timestamp": 1459490400000,
+      "count": 215,
+      "size_bytes": 3303
+    },
+    {
+      "start_timestamp": 1459497600000,
+      "count": 1800,
+      "size_bytes": 31726
+    },
+    {
+      "start_timestamp": 1459504800000,
+      "count": 39,
+      "size_bytes": 631
+    },
+    {
+      "start_timestamp": 1459749600000,
+      "count": 155,
+      "size_bytes": 2339
+    },
+    {
+      "start_timestamp": 1459756800000,
+      "count": 1800,
+      "size_bytes": 29937
+    },
+    {
+      "start_timestamp": 1459764000000,
+      "count": 1746,
+      "size_bytes": 30965
+    },
+    {
+      "start_timestamp": 1459771200000,
+      "count": 514,
+      "size_bytes": 8781
+    },
+    {
+      "start_timestamp": 1459778400000,
+      "count": 1296,
+      "size_bytes": 24597
+    },
+    {
+      "start_timestamp": 1459850400000,
+      "count": 1257,
+      "size_bytes": 24890
+    },
+    {
+      "start_timestamp": 1459857600000,
+      "count": 1798,
+      "size_bytes": 34676
+    },
+    {
+      "start_timestamp": 1459864800000,
+      "count": 969,
+      "size_bytes": 18360
+    },
+    {
+      "start_timestamp": 1459922400000,
+      "count": 186,
+      "size_bytes": 3120
+    },
+    {
+      "start_timestamp": 1459929600000,
+      "count": 1801,
+      "size_bytes": 34481
+    },
+    {
+      "start_timestamp": 1459936800000,
+      "count": 15972,
+      "size_bytes": 287955
+    }
+  ]
 }
