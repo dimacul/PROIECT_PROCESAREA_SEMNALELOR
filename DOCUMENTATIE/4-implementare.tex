@@ -6,7 +6,7 @@ Acest capitol prezintă arhitectura și clasele implementării algoritmului Gori
 
 \subsection{Diagrama dependențelor}
 
-Sistemul este organizat pe trei niveluri ierarhice, prezentate în Figura~\ref{fig:class-deps}. La bază se află operațiile pe biți, urmate de encoderele și decoderele specializate, iar la vârf se află modulele de stocare.
+Sistemul este organizat pe patru niveluri ierarhice, prezentate în Figura~\ref{fig:class-deps}. La bază se află operațiile pe biți, urmate de encoderele și decoderele specializate, iar la vârf se află modulele de stocare.
 
 \begin{figure}[h]
 \centering
@@ -24,15 +24,18 @@ Sistemul este organizat pe trei niveluri ierarhice, prezentate în Figura~\ref{f
     \node[module] (tsd) at (5,2) {TimestampDecoder};
     \node[module] (vd) at (8,2) {ValueDecoder};
 
-    % Nivelul 3: Stocare
-    \node[module] (mvb) at (0,4) {MultiVariateBlock};
+    % Nivelul 3: Encoder/Decoder multivariat
+    \node[module] (mve) at (0,4) {MultiVariateEncoder};
     \node[module] (mvd) at (6.5,4) {MultiVariateDecoder};
 
-    % Nivelul 4
-    \node[module] (mvs) at (3.25,5.5) {MultiVariateSeries};
+    % Nivelul 4: Block
+    \node[module] (mvb) at (3.25,5.5) {MultiVariateBlock};
 
-    % Nivelul 5
-    \node[module] (store) at (3.25,7) {MultiVariateStore};
+    % Nivelul 5: Series
+    \node[module] (mvs) at (3.25,7) {MultiVariateSeries};
+
+    % Nivelul 6: Store
+    \node[module] (store) at (3.25,8.5) {MultiVariateStore};
 
     % Dependențe Nivel 2 -> Nivel 1
     \draw[arrow] (tse) -- (bw);
@@ -41,20 +44,22 @@ Sistemul este organizat pe trei niveluri ierarhice, prezentate în Figura~\ref{f
     \draw[arrow] (vd) -- (br);
 
     % Dependențe Nivel 3 -> Nivel 2
-    \draw[arrow] (mvb) -- (tse);
-    \draw[arrow] (mvb) -- (ve);
+    \draw[arrow] (mve) -- (tse);
+    \draw[arrow] (mve) -- (ve);
     \draw[arrow] (mvd) -- (tsd);
     \draw[arrow] (mvd) -- (vd);
 
     % Dependențe între module stocare
+    \draw[arrow] (mvb) -- (mve);
+    \draw[arrow] (mvb) -- (mvd);
     \draw[arrow] (mvs) -- (mvb);
-    \draw[arrow] (mvs) -- (mvd);
     \draw[arrow] (store) -- (mvs);
 
     % Etichete niveluri
     \node[gray, anchor=east] at (-3,0) {\footnotesize Nivel 1: Biți};
     \node[gray, anchor=east] at (-3,2) {\footnotesize Nivel 2: Codare};
-    \node[gray, anchor=east] at (-3,4.75) {\footnotesize Nivel 3: Stocare};
+    \node[gray, anchor=east] at (-3,4) {\footnotesize Nivel 3: Agregare};
+    \node[gray, anchor=east] at (-3,6.75) {\footnotesize Nivel 4: Stocare};
 \end{tikzpicture}
 \caption{Ierarhia dependențelor dintre clase}
 \label{fig:class-deps}
